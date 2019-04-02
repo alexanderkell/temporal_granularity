@@ -15,12 +15,18 @@ class MultiMetrics:
         self.wind = wind
         self.load = load 
         
-    def get_correlations(self):
+    def get_correlations(self, data_type):
         combination = list(combinations([self.solar, self.wind, self.load], r=2))
+        combination_names = list(combinations(["solar", "wind", "load"], r=2))
         
         correlations = []
-        for comb in combination:
-            correlations.append(self._calculate_correlation(comb[0], comb[1]))
+        for name, comb in zip(combination_names, combination):
+            name = "-".join(name)+"-"+data_type
+            single_result = {}
+            result = self._calculate_correlation(comb[0], comb[1])
+            single_result.update({"metric":"correlation", "series_type":name, "value":result})
+            
+            correlations.append(single_result)
         
         return correlations
     

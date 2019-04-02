@@ -43,9 +43,20 @@ class Metrics:
         members = list(vars(self).items())
         for original, representative, data_type in zip(members[0::2], members[1::2], data_types):
             rae_result={}
-            solar_metrics = SingleMetrics(original[1], representative[1]).rae()
-            rae_result.update({'series_type': data_type,'metric':'rae','value':solar_metrics})
-            logger.debug(rae_result)
+            rae_value = SingleMetrics(original[1], representative[1]).rae()
+            rae_result.update({'series_type': data_type,'metric':'rae','value': rae_value})
             rae_results.append(rae_result)
         
         return rae_results
+
+    def get_correlations(self):
+        
+        all_correlations = []
+
+        original_correlations = MultiMetrics(self.original_solar, self.original_wind, self.original_load).get_correlations("original")
+        all_correlations.extend(original_correlations)
+        representative_correlations = MultiMetrics(self.representative_solar, self.representative_wind, self.representative_load).get_correlations("representative")
+        all_correlations.extend(representative_correlations)
+
+        return all_correlations
+
