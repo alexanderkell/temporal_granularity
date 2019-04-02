@@ -7,6 +7,7 @@
     "python.unitTest.pyTestEnabled": true,
     "python.unitTest.pyTestArgs": [
         "-s",
+        "-v",
     ],
     // "python.jediEnabled": false
 }

@@ -4,7 +4,8 @@ project_dir = Path("__file__").resolve().parents[1]
 sys.path.insert(0, '{}/temporal_granularity/'.format(project_dir))
 
 import pandas as pd
-from src.metrics.single_metrics import SingleMetrics
+from pandas.util.testing import assert_frame_equal
+from src.metrics.metrics import Metrics
 import pytest
 
 import numpy as np
@@ -18,27 +19,17 @@ logging.basicConfig(level=logging.DEBUG)
 
 class Test_Metrics:
 
-    def test_nrmse(self):
-        original_ldc = pd.DataFrame({"capacity_factor":[math.exp(i)-1 for i in np.arange(0, 0.70, 0.007)], "duration":[i for i in range(0,100,1)]})
-        approximated_ldc = pd.DataFrame({"capacity_factor":[math.exp(i)-1+0.1 for i in np.arange(0, 0.70, 0.007)], "duration":[i for i in range(0,100,1)]})
-        ldc_nrmse = SingleMetrics(original_ldc, approximated_ldc).nrmse()
+    def test_all_nrmse(self):
+        original_solar = pd.DataFrame({"capacity_factor":[1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7], "datetime":[1, 2, 3, 4, 5, 6, 7]})
+        representative_solar = pd.DataFrame({"capacity_factor":[1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8], "datetime":[1, 2, 3, 4, 5, 6, 7]})
+        original_wind = pd.DataFrame({"capacity_factor":[1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7], "datetime":[1,2,3,4,5,6,7]})
+        representative_wind = pd.DataFrame({"capacity_factor":[1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7], "datetime":[1, 2, 3, 4, 5, 6, 7]})
+        original_load = pd.DataFrame({"capacity_factor":[1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7], "datetime":[1, 2, 3, 4, 5, 6, 7]})
+        representative_load = pd.DataFrame({"capacity_factor":[1.05, 1.15, 1.25, 1.35, 1.45, 1.55, 1.65], "datetime":[1, 2, 3, 4, 5, 6, 7]})
+        
+        all_nrmse = Metrics(original_solar, representative_solar, original_wind, representative_wind, original_load, representative_load).get_nrmse()
 
-        assert ldc_nrmse == pytest.approx(0.1, rel=0.1)
+        expected_nrmse = [{'metric': 'nrmse', 'series_type': 'solar', 'value': 0.16666666666666669}, {'metric': 'nrmse', 'series_type': 'wind', 'value': 0.0}, {'metric': 'nrmse', 'series_type': 'load', 'value': 0.08333333333333338}]
+        assert all_nrmse == expected_nrmse
 
-    def test_rae(self):
-        original_ldc = pd.DataFrame({"capacity_factor":[math.exp(i)-1 for i in np.arange(0, 0.70, 0.007)], "duration":[i for i in range(0,100,1)]})
-        approximated_ldc = pd.DataFrame({"capacity_factor":[math.exp(i)-1+0.1 for i in np.arange(0, 0.70, 0.007)], "duration":[i for i in range(0,100,1)]})
-        ldc_nrmse = SingleMetrics(original_ldc, approximated_ldc).nrmse()
-
-        assert ldc_nrmse == pytest.approx(0.1, rel=0.1)
-
-    # def test_get_correlation(self):
-    #     time_series_1 = pd.DataFrame({"capacity_factor":[1,0,1,0,1,0,1], "duration":[1,2,3,4,5,6,7]})
-    #     time_series_2 = pd.DataFrame({"capacity_factor":[1,0,1,0,1,0,1], "duration":[1,2,3,4,5,6,7]})
-    #     correlation = SingleMetrics(time_series_1, time_series_2).calculate_correlation()
-    #     assert correlation == 1
-
-    #     time_series_1 = pd.DataFrame({"capacity_factor":[0,1,0,1,0,1,0], "duration":[1,2,3,4,5,6,7]})
-    #     time_series_2 = pd.DataFrame({"capacity_factor":[1,0,1,0,1,0,1], "duration":[1,2,3,4,5,6,7]})
-    #     correlation = SingleMetrics(time_series_1, time_series_2, 20).calculate_correlation()
-    #     assert correlation == -1
+    

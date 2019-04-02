@@ -23,12 +23,6 @@ class SingleMetrics:
         rae = abs((self.original['capacity_factor'].sum()-self.representative['capacity_factor'].sum())/self.original['capacity_factor'].sum())
         return rae
 
-
-    # def _calculate_correlation(self):
-    #     corr = stats.pearsonr(self.original.capacity_factor, self.representative.capacity_factor)[0]
-
-    #     return corr
-
     def display_metrics(self):
         logger.info("")
 

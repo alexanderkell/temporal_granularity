@@ -1,9 +1,6 @@
 import pandas as pd
 import logging
 import numpy as np
-from sklearn.metrics import mean_squared_error
-from math import sqrt
-from scipy import signal
 from scipy import stats
 
 from src.metrics.single_metrics import SingleMetrics
