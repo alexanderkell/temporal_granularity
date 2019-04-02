@@ -1,3 +1,3 @@
 [
-  "test/test_metrics/test_metrics.py::Test_Metrics::test_get_correlation"
+  "test/test_metrics/test_multi_metrics.py::Test_MultiMetrics::test_combinations"
 ]

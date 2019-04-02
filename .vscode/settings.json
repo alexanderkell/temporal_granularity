@@ -8,5 +8,5 @@
     "python.unitTest.pyTestArgs": [
         "-s",
     ],
-    "python.jediEnabled": false
+    // "python.jediEnabled": false
 }

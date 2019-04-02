@@ -8,12 +8,11 @@ from scipy import stats
 
 logger = logging.getLogger(__name__)
 
-class Metrics:
+class SingleMetrics:
 
-    def __init__(self, original, representative, num_bins):
+    def __init__(self, original, representative):
         self.original = original
         self.representative = representative
-        self.num_bins = num_bins
         # self.binned_original = self._approximaal(self.original)
 
     def nrmse(self):
@@ -24,14 +23,11 @@ class Metrics:
         rae = abs((self.original['capacity_factor'].sum()-self.representative['capacity_factor'].sum())/self.original['capacity_factor'].sum())
         return rae
 
-    def correlation_error(self):
-        correlation_error = self.original['capacity_factor'] - self.representative['capacity_factor']
-        return correlation_error
 
-    def calculate_correlation(self):
-        corr = stats.pearsonr(self.original.capacity_factor, self.representative.capacity_factor)[0]
+    # def _calculate_correlation(self):
+    #     corr = stats.pearsonr(self.original.capacity_factor, self.representative.capacity_factor)[0]
 
-        return corr
+    #     return corr
 
     def display_metrics(self):
         logger.info("")
