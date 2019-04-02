@@ -20,12 +20,27 @@ class Metrics:
         self.original_load = original_load
         self.representative_load = representative_load
 
-        self.results = pd.DataFrame(columns = ['series_type', 'metric', 'value'])
+        
 
     def get_error_metrics(self):
-        pass
+        
+        # results = pd.DataFrame(columns = ['series_type', 'metric', 'value'])
+        metrics = []
 
-    def get_nrmse(self):
+        all_nrmse = self._get_nrmse()
+        all_rae = self._get_rae()
+        all_corr = self._get_correlations()
+
+        metrics.extend(all_nrmse)
+        metrics.extend(all_rae)
+        metrics.extend(all_corr)
+
+        results = pd.DataFrame(metrics)
+        logger.debug("results: {}".format(results))
+        return results
+
+
+    def _get_nrmse(self):
         nrmse_results = []
         data_types = ['solar', 'wind', 'load']
         members = list(vars(self).items())
@@ -37,7 +52,7 @@ class Metrics:
 
         return nrmse_results   
     
-    def get_rae(self):
+    def _get_rae(self):
         rae_results = []
         data_types = ['solar', 'wind', 'load']
         members = list(vars(self).items())
@@ -49,7 +64,7 @@ class Metrics:
         
         return rae_results
 
-    def get_correlations(self):
+    def _get_correlations(self):
         
         all_correlations = []
 
