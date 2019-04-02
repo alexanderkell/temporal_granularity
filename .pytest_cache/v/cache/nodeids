@@ -1,5 +1,3 @@
 [
-  "test/test_metrics/test_metrics.py::Test_Metrics::test_nrmse",
-  "test/test_metrics/test_metrics.py::Test_Metrics::test_rae",
   "test/test_metrics/test_metrics.py::Test_Metrics::test_get_correlation"
 ]

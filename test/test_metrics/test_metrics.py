@@ -37,3 +37,8 @@ class Test_Metrics:
         time_series_2 = pd.DataFrame({"capacity_factor":[1,0,1,0,1,0,1], "duration":[1,2,3,4,5,6,7]})
         correlation = Metrics(time_series_1, time_series_2, 20).calculate_correlation()
         assert correlation == 1
+
+        time_series_1 = pd.DataFrame({"capacity_factor":[0,1,0,1,0,1,0], "duration":[1,2,3,4,5,6,7]})
+        time_series_2 = pd.DataFrame({"capacity_factor":[1,0,1,0,1,0,1], "duration":[1,2,3,4,5,6,7]})
+        correlation = Metrics(time_series_1, time_series_2, 20).calculate_correlation()
+        assert correlation == -1
