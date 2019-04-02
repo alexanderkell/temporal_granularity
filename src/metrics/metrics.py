@@ -26,22 +26,26 @@ class Metrics:
         pass
 
     def get_nrmse(self):
-        
         nrmse_results = []
         data_types = ['solar', 'wind', 'load']
         members = list(vars(self).items())
-        # logger.debug("members: {}".format(members))
         for original, representative, data_type in zip(members[0::2], members[1::2], data_types):
-            logger.debug("original: {}, representative: {}, data_type: {}".format(type(original), type(representative), data_type))
             nrmse_result={}
             solar_metrics = SingleMetrics(original[1], representative[1]).nrmse()
-            logger.debug('data_type: {}, solar_metrics: {}'.format(data_type, solar_metrics))
             nrmse_result.update({'series_type': data_type,'metric':'nrmse','value':solar_metrics})
-            
             nrmse_results.append(nrmse_result)
-
-        # solar_nrmse = solar_metrics.nrmse()
-        # self.results.insert()
 
         return nrmse_results   
     
+    def get_rae(self):
+        rae_results = []
+        data_types = ['solar', 'wind', 'load']
+        members = list(vars(self).items())
+        for original, representative, data_type in zip(members[0::2], members[1::2], data_types):
+            rae_result={}
+            solar_metrics = SingleMetrics(original[1], representative[1]).rae()
+            rae_result.update({'series_type': data_type,'metric':'rae','value':solar_metrics})
+            logger.debug(rae_result)
+            rae_results.append(rae_result)
+        
+        return rae_results

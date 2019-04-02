@@ -1,6 +1,4 @@
 [
   "test/test_metrics/test_metrics.py::Test_Metrics::test_all_nrmse",
-  "test/test_metrics/test_multi_metrics.py::Test_MultiMetrics::test_combinations",
-  "test/test_metrics/test_single_metrics.py::Test_SingleMetrics::test_nrmse",
-  "test/test_metrics/test_single_metrics.py::Test_SingleMetrics::test_rae"
+  "test/test_metrics/test_metrics.py::Test_Metrics::test_all_rae"
 ]
