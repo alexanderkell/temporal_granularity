@@ -9,13 +9,15 @@ from pandas.plotting import autocorrelation_plot
 from statsmodels.tsa.arima_model import ARIMA
 import statsmodels.api as sm
 from sklearn.metrics import pairwise_distances_argmin_min
+from scipy import signal
+import numpy as np
 
 import logging
 
 class ApproximateData:
 
-    def __init__(self, data_dir, data_type):
-        self.data = self._import_data(data_dir)
+    def __init__(self, data, data_type):
+        self.data = self._import_data(data)
         self.data_type = data_type
         
 
@@ -100,6 +102,12 @@ class ApproximateData:
         data_each_year = data_each_year.rename(columns={"level_0":"index_for_year"})
         return data_each_year
 
+    def get_ramp_curve(self, data):
+        data['diff'] = data.diff()['capacity_factor']
+        data_sorted = data.sort_values('diff', ascending=False).reset_index().reset_index()
+
+        return data_sorted
+
     def _scale_data_to_seasons(self, data):
         bins = [0, 70, 163, 245, 358, 366]
         days_per_season = [x - bins[i - 1] for i, x in enumerate(bins)][1:]
@@ -126,9 +134,8 @@ class ApproximateData:
 
         return scaled_data
 
-    def _import_data(self, data_dir):
-        data = pd.read_csv(data_dir).drop('Unnamed: 0', axis=1)
-
+    def _import_data(self, data):
+        data = data.drop('Unnamed: 0', axis=1)
 
         data.set_index('datetime', inplace=True)
         data.index=pd.to_datetime(data.index)
@@ -172,7 +179,8 @@ if __name__ == '__main__':
     # not used in this stub but often useful for finding various files
     project_dir = Path("__file__").resolve().parents[1]
 
-    data_manipulator = ApproximateData('{}/temporal_granularity/data/processed/resources/onshore_processed.csv'.format(project_dir), 'onshore')
+    data = pd.read_csv('{}/temporal_granularity/data/processed/resources/onshore_processed.csv'.format(project_dir))
+    data_manipulator = ApproximateData(data, 'onshore')
     # data_manipulator.average_by_season()
     data_manipulator.kmeans_centroids(4)
     # data_manipulator.cluster_medoids(4)

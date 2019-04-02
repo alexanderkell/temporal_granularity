@@ -34,6 +34,8 @@ if __name__ == '__main__':
     project_dir = Path("__file__").resolve().parents[1]
     
     dataset_string = 'onshore'
-    main('{}/temporal_granularity/data/raw/resources/ninja_wind_country_GB_current-merra-2_corrected (2).csv'.format(project_dir), '{}/temporal_granularity/data/processed/resources/{}_processed.csv'.format(project_dir, dataset_string), dataset_string)
+    # main('{}/temporal_granularity/data/raw/resources/ninja_wind_country_GB_current-merra-2_corrected (2).csv'.format(project_dir), '{}/temporal_granularity/data/processed/resources/{}_processed.csv'.format(project_dir, dataset_string), dataset_string)
+    main('{}/temporal_granularity/data/raw/resources/belgium/ninja_wind_country_BE_current-merra-2_corrected.csv'.format(project_dir), '{}/temporal_granularity/data/processed/resources/{}_processed_BE.csv'.format(project_dir, dataset_string), dataset_string)
+    
     dataset_string = 'offshore'
-    main('{}/temporal_granularity/data/raw/resources/ninja_wind_country_GB_current-merra-2_corrected (2).csv'.format(project_dir), '{}/temporal_granularity/data/processed/resources/{}_processed.csv'.format(project_dir, dataset_string), dataset_string)
+    main('{}/temporal_granularity/data/raw/resources/belgium/ninja_wind_country_BE_current-merra-2_corrected.csv'.format(project_dir), '{}/temporal_granularity/data/processed/resources/{}_processed_BE.csv'.format(project_dir, dataset_string), dataset_string)

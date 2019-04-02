@@ -30,5 +30,5 @@ if __name__ == '__main__':
     # not used in this stub but often useful for finding various files
     project_dir = Path("__file__").resolve().parents[1]
     
-
+    # main('{}/temporal_granularity/data/raw/resources/ninja_pv_country_GB_sarah_nuts-2_corrected.csv'.format(project_dir), '{}/temporal_granularity/data/processed/resources/pv_processed.csv'.format(project_dir))
     main('{}/temporal_granularity/data/raw/resources/ninja_pv_country_GB_sarah_nuts-2_corrected.csv'.format(project_dir), '{}/temporal_granularity/data/processed/resources/pv_processed.csv'.format(project_dir))
