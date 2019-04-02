@@ -26,3 +26,11 @@ class Test_MultiMetrics():
         correlations = multi_metrics_calculator.get_correlations()
 
         assert correlations == [1.0, -1.0, -1]
+
+        solar = pd.DataFrame({"capacity_factor":[0,1,0,1,0,1,0], "datetime":[1,2,3,4,5,6,7]})
+        wind = pd.DataFrame({"capacity_factor":[0,1,0,1,0,1,0], "datetime":[1,2,3,4,5,6,7]})
+        load = pd.DataFrame({"capacity_factor":[0.7,0.5,0.7,0.5,0.7,0.5,0.8], "datetime":[1,2,3,4,5,6,7]})
+        multi_metrics_calculator = MultiMetrics(solar, wind, load)
+        correlations = multi_metrics_calculator.get_correlations()
+
+        assert correlations == pytest.approx([1.0,  -0.9594,  -0.9594], rel=0.001)
