@@ -31,14 +31,3 @@ class Test_SingleMetrics:
         ldc_nrmse = SingleMetrics(original_ldc, approximated_ldc).nrmse()
 
         assert ldc_nrmse == pytest.approx(0.1, rel=0.1)
-
-    # def test_get_correlation(self):
-    #     time_series_1 = pd.DataFrame({"capacity_factor":[1,0,1,0,1,0,1], "duration":[1,2,3,4,5,6,7]})
-    #     time_series_2 = pd.DataFrame({"capacity_factor":[1,0,1,0,1,0,1], "duration":[1,2,3,4,5,6,7]})
-    #     correlation = SingleMetrics(time_series_1, time_series_2).calculate_correlation()
-    #     assert correlation == 1
-
-    #     time_series_1 = pd.DataFrame({"capacity_factor":[0,1,0,1,0,1,0], "duration":[1,2,3,4,5,6,7]})
-    #     time_series_2 = pd.DataFrame({"capacity_factor":[1,0,1,0,1,0,1], "duration":[1,2,3,4,5,6,7]})
-    #     correlation = SingleMetrics(time_series_1, time_series_2, 20).calculate_correlation()
-    #     assert correlation == -1

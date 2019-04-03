@@ -14,12 +14,29 @@ import numpy as np
 
 import logging
 
+logger = logging.getLogger(__name__)
+
+
 class ApproximateData:
 
-    def __init__(self, data, data_type):
+    def __init__(self, data, n_days):
         self.data = self._import_data(data)
-        self.data_type = data_type
+        self.n_days = n_days
         
+
+    def get_approximated_ldc(self, approximation_method):
+        if approximation_method == 'medoids':
+            centres, y_kmeans = self.cluster_medoids()
+            data = self.get_load_duration_curve(centres, y_kmeans)
+        elif approximation_method == "centroids":
+            centres, y_kmeans = self.kmeans_centroids()
+            data = self.get_load_duration_curve(centres, y_kmeans)
+        elif approximation_method == "season_average":
+            centres = self.average_by_season()
+            data = self.get_load_duration_curve(centres)
+        else:
+            raise ValueError("approximation method can not equal {}, must be medoids, centroids or season_average".format(approximation_method))
+        return data
 
     def average_by_season(self):
         bins = [0, 70, 163, 245, 358, 366]
@@ -39,11 +56,11 @@ class ApproximateData:
 
         return average_day_df
 
-    def kmeans_centroids(self, n_clusters):
+    def kmeans_centroids(self):
 
         each_day = self._long_to_wide_data()
 
-        kmeans = self._get_kmeans(each_day, n_clusters)
+        kmeans = self._get_kmeans(each_day, self.n_days)
         y_kmeans = kmeans.predict(each_day)
         y_kmeans_df = pd.DataFrame(y_kmeans)
         y_kmeans_df = y_kmeans_df.rename(columns={y_kmeans_df.columns[0]:'cluster'})
@@ -63,11 +80,11 @@ class ApproximateData:
         return centres_df_long, y_kmeans_df
 
 
-    def cluster_medoids(self, n_clusters):
+    def cluster_medoids(self):
 
         each_day = self._long_to_wide_data()
 
-        k_means = self._get_kmeans(each_day, n_clusters)
+        k_means = self._get_kmeans(each_day)
         y_kmeans = k_means.predict(each_day)
 
         y_kmeans_df = pd.DataFrame(y_kmeans)
@@ -79,21 +96,23 @@ class ApproximateData:
         closest_data_points, _ = pairwise_distances_argmin_min(k_means.cluster_centers_, each_day)
 
         medoids = self._get_medoids(closest_data_points, each_day_w_kmeans)
-            
 
         return medoids, y_kmeans_df
 
     
-    def get_load_duration_curve(self, data=None, clusters=None):
+    def get_load_duration_curve(self, data=None, clusters=None, year=None):
         if data is None:
             data_each_year = self.data.copy()
             data_each_year= self.data.reset_index()
             data_each_year['year'] = data_each_year.datetime.dt.year
-            data_each_year = data_each_year.groupby('year').apply(lambda x: x.sort_values('capacity_factor', ascending=False).reset_index().reset_index())
+            if year is None:    
+                data_each_year = data_each_year.groupby('year').apply(lambda x: x.sort_values('capacity_factor', ascending=False).reset_index().reset_index())
+            else:
+                data_each_year = data_each_year[(data_each_year.datetime>=year) & (data_each_year.datetime<str(int(year)+1))]
+                data_each_year = data_each_year.sort_values('capacity_factor', ascending=False).reset_index().reset_index()
         elif clusters is None:
             data_each_year = self._scale_data_to_seasons(data)
             data_each_year = data_each_year.sort_values('capacity_factor', ascending=False).reset_index().reset_index()
-
         else:
             data_each_year = self._scale_data_to_clusters(data, clusters)
             data_each_year = data_each_year.sort_values('capacity_factor', ascending=False).reset_index()
@@ -130,7 +149,12 @@ class ApproximateData:
         cluster_weights = clusters.groupby('cluster').count()
         scaled_data = data.merge(cluster_weights, on='cluster') #[['cluster','capacity_factor','year']]
         scaled_data['index'] = scaled_data['index']/37
+
+        scaled_data['index'] = np.ceil(scaled_data['index']).astype(int)
+        # scaled_data['index'] = scaled_data['index'].round(decimals=0)
         scaled_data = scaled_data.reindex(scaled_data.index.repeat(scaled_data['index']))
+        
+        scaled_data = scaled_data[:8760]
 
         return scaled_data
 
@@ -166,8 +190,8 @@ class ApproximateData:
 
         return each_day
 
-    def _get_kmeans(self, each_day, n_clusters):
-        kmeans = KMeans(n_clusters=n_clusters)
+    def _get_kmeans(self, each_day):
+        kmeans = KMeans(n_clusters=self.n_days)
         kmeans.fit(each_day)
         return kmeans
 
@@ -185,4 +209,3 @@ if __name__ == '__main__':
     data_manipulator.kmeans_centroids(4)
     # data_manipulator.cluster_medoids(4)
     # print(data_manipulator.get_load_duration_curve())
-    

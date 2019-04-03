@@ -20,11 +20,14 @@ class Metrics:
         self.original_load = original_load
         self.representative_load = representative_load
 
-        
+    def get_mean_error_metrics(self):
+        error_metrics = self.get_error_metrics()
+        mean_errors = error_metrics.groupby("metric").value.mean().to_frame()
+        return mean_errors
+
 
     def get_error_metrics(self):
         
-        # results = pd.DataFrame(columns = ['series_type', 'metric', 'value'])
         metrics = []
 
         all_nrmse = self._get_nrmse()
@@ -82,5 +85,4 @@ class Metrics:
 
         correlation_errors = [{key_orig: abs(value_orig - value_repres) if key_orig == 'value' else value_orig for [[key_orig, value_orig], [key_repres, value_repres]] in zip(original.items(), representative.items())} for original, representative in zip(original_correlations, representative_correlations)] 
         
-        logger.debug("correlation_errors: {}".format(correlation_errors))
         return correlation_errors

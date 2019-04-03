@@ -17,16 +17,18 @@ class SingleMetrics:
 
     def nrmse(self):
         nrmse = sqrt(mean_squared_error(self.original['capacity_factor'], self.representative['capacity_factor']))/(self.original['capacity_factor'].max()-self.original['capacity_factor'].min())
+        nrmse = nrmse*100
         return nrmse
 
     def rae(self):
         rae = abs((self.original['capacity_factor'].sum()-self.representative['capacity_factor'].sum())/self.original['capacity_factor'].sum())
+        rae = rae*100
         return rae
 
     def display_metrics(self):
         logger.info("")
 
-    # def _approximaal(self, ldc):
+    # def _approximal(self, ldc):
     #     largest_entry = ldc.iloc[-1]
     #     smallest_entry = ldc.iloc[0]
     #     logger.debug("largest_entry: \n{}".format(largest_entry))

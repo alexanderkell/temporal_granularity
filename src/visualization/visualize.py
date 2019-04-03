@@ -3,8 +3,6 @@ from pathlib import Path
 project_dir = Path("__file__").resolve().parents[1]
 import os
 sys.path.insert(0, '{}/temporal_granularity/'.format(project_dir))
-project_dir = Path("__file__").resolve().parents[1]
-
 
 from src.models.approximations import ApproximateData
 import pandas as pd
@@ -15,20 +13,10 @@ from itertools import cycle
 
 def plot_orginal_and_approximated_ldc(data_dir, approximation_method, n_clusters, data_type):
 
-    data_manipulator = ApproximateData(data_dir, data_type)
+    data_manipulator = ApproximateData(data_dir)
     original = data_manipulator.get_load_duration_curve()
 
-    if approximation_method == 'medoids':
-        centres, y_kmeans = data_manipulator.cluster_medoids(n_clusters)
-        data = data_manipulator.get_load_duration_curve(centres, y_kmeans)
-    elif approximation_method == "centroids":
-        centres, y_kmeans = data_manipulator.kmeans_centroids(n_clusters)
-        data = data_manipulator.get_load_duration_curve(centres, y_kmeans)
-    elif approximation_method == "season_average":
-        centres = data_manipulator.average_by_season()
-        data = data_manipulator.get_load_duration_curve(centres)
-    else:
-        raise ValueError("approximation method can not equal {}, must be medoids, centroids or season_average".format(approximation_method))
+    data = data_manipulator.get_approximated_ldc(approximation_method, n_clusters)
 
     fig, ax = plt.subplots()
     sns.lineplot(data=original, hue='year', x='index_for_year', y='capacity_factor', ax=ax)
@@ -47,11 +35,10 @@ def plot_orginal_and_approximated_ldc(data_dir, approximation_method, n_clusters
     plt.close()
 
 
-
 if __name__ == "__main__":
-    onshore_data = '/Users/b1017579/Documents/PhD/Projects/14-temporal-granularity/temporal_granularity/data/processed/resources/onshore_processed.csv'
-    offshore_data = '/Users/b1017579/Documents/PhD/Projects/14-temporal-granularity/temporal_granularity/data/processed/resources/offshore_processed.csv'
-    pv_data = '/Users/b1017579/Documents/PhD/Projects/14-temporal-granularity/temporal_granularity/data/processed/resources/pv_processed.csv'
+    onshore_data = pd.read_csv('/Users/b1017579/Documents/PhD/Projects/14-temporal-granularity/temporal_granularity/data/processed/resources/onshore_processed.csv')
+    offshore_data = pd.read_csv('/Users/b1017579/Documents/PhD/Projects/14-temporal-granularity/temporal_granularity/data/processed/resources/offshore_processed.csv')
+    pv_data = pd.read_csv('/Users/b1017579/Documents/PhD/Projects/14-temporal-granularity/temporal_granularity/data/processed/resources/pv_processed.csv')
 
     data = [onshore_data, offshore_data, pv_data, onshore_data, offshore_data, pv_data]
     resources = ['onshore', 'offshore', 'photovoltaic','onshore', 'offshore', 'photovoltaic']
