@@ -29,14 +29,13 @@ class Metrics:
 
         all_nrmse = self._get_nrmse()
         all_rae = self._get_rae()
-        all_corr = self._get_correlations()
+        all_corr = self._calculate_correlation_error()
 
         metrics.extend(all_nrmse)
         metrics.extend(all_rae)
         metrics.extend(all_corr)
 
         results = pd.DataFrame(metrics)
-        logger.debug("results: {}".format(results))
         return results
 
 
@@ -64,14 +63,24 @@ class Metrics:
         
         return rae_results
 
-    def _get_correlations(self):
+    def _get_correlations(self, data_type):
         
         all_correlations = []
-
-        original_correlations = MultiMetrics(self.original_solar, self.original_wind, self.original_load).get_correlations("original")
-        all_correlations.extend(original_correlations)
-        representative_correlations = MultiMetrics(self.representative_solar, self.representative_wind, self.representative_load).get_correlations("representative")
-        all_correlations.extend(representative_correlations)
-
+        if data_type == "original":
+            original_correlations = MultiMetrics(self.original_solar, self.original_wind, self.original_load).get_correlations()
+            all_correlations.extend(original_correlations)
+        elif data_type == "representative":
+            representative_correlations = MultiMetrics(self.representative_solar, self.representative_wind, self.representative_load).get_correlations()
+            all_correlations.extend(representative_correlations)
+        else:
+            raise ValueError("data_type can not be {}. It must be original or representative".format(data_type))
         return all_correlations
 
+    def _calculate_correlation_error(self):
+        original_correlations = self._get_correlations("original")
+        representative_correlations = self._get_correlations("representative")
+
+        correlation_errors = [{key_orig: abs(value_orig - value_repres) if key_orig == 'value' else value_orig for [[key_orig, value_orig], [key_repres, value_repres]] in zip(original.items(), representative.items())} for original, representative in zip(original_correlations, representative_correlations)] 
+        
+        logger.debug("correlation_errors: {}".format(correlation_errors))
+        return correlation_errors

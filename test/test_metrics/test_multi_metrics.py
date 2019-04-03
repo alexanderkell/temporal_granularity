@@ -23,11 +23,11 @@ class Test_MultiMetrics():
         wind = pd.DataFrame({"capacity_factor":[0,1,0,1,0,1,0], "datetime":[1,2,3,4,5,6,7]})
         load = pd.DataFrame({"capacity_factor":[1,0,1,0,1,0,1], "datetime":[1,2,3,4,5,6,7]})
         multi_metrics_calculator = MultiMetrics(solar, wind, load)
-        correlations = multi_metrics_calculator.get_correlations("test")
+        correlations = multi_metrics_calculator.get_correlations()
 
-        expected_result = [{"metric":"correlation", "series_type":"solar-wind-test", "value":1.0},
-        {"metric":"correlation", "series_type":"solar-load-test", "value":-1.0},
-        {"metric":"correlation", "series_type":"wind-load-test", "value":-1.0}]
+        expected_result = [{"metric":"correlation", "series_type":"solar-wind", "value":1.0},
+        {"metric":"correlation", "series_type":"solar-load", "value":-1.0},
+        {"metric":"correlation", "series_type":"wind-load", "value":-1.0}]
 
         assert correlations == expected_result
 
@@ -35,10 +35,10 @@ class Test_MultiMetrics():
         wind = pd.DataFrame({"capacity_factor":[0,1,0,1,0,1,0], "datetime":[1,2,3,4,5,6,7]})
         load = pd.DataFrame({"capacity_factor":[0.7,0.5,0.7,0.5,0.7,0.5,0.8], "datetime":[1,2,3,4,5,6,7]})
         multi_metrics_calculator = MultiMetrics(solar, wind, load)
-        correlations = multi_metrics_calculator.get_correlations("test")
+        correlations = multi_metrics_calculator.get_correlations()
 
-        expected_result = [{"metric":"correlation", "series_type":"solar-wind-test", "value":1.0},
-        {"metric":"correlation", "series_type":"solar-load-test", "value":pytest.approx(-0.9594, rel=0.001)},
-        {"metric":"correlation", "series_type":"wind-load-test", "value":pytest.approx(-0.9594, rel=0.001)}]
+        expected_result = [{"metric":"correlation", "series_type":"solar-wind", "value":1.0},
+        {"metric":"correlation", "series_type":"solar-load", "value":pytest.approx(-0.9594, rel=0.001)},
+        {"metric":"correlation", "series_type":"wind-load", "value":pytest.approx(-0.9594, rel=0.001)}]
 
         assert correlations == expected_result
