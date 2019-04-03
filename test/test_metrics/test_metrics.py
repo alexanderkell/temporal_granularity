@@ -53,7 +53,6 @@ class Test_Metrics:
         original_load = pd.DataFrame({"capacity_factor":[1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7], "datetime":[1, 2, 3, 4, 5, 6, 7]})
         representative_load = pd.DataFrame({"capacity_factor":[1.05, 1.15, 1.25, 1.35, 1.45, 1.55, 1.65], "datetime":[1, 2, 3, 4, 5, 6, 7]})
         
-        all_correlations = Metrics(original_solar, representative_solar, original_wind, representative_wind, original_load, representative_load)._get_correlations()
 
         expected_result = [{'metric':"correlation", "series_type": "solar-wind-original", "value":1},
          {'metric':"correlation", "series_type": "solar-load-original", "value":1},
