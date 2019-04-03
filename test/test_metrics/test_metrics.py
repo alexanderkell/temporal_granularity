@@ -29,7 +29,7 @@ class Test_Metrics:
         
         all_nrmse = Metrics(original_solar, representative_solar, original_wind, representative_wind, original_load, representative_load)._get_nrmse()
 
-        expected_nrmse = [{'metric': 'nrmse', 'series_type': 'solar', 'value': 0.16666666666666669}, {'metric': 'nrmse', 'series_type': 'wind', 'value': 0.0}, {'metric': 'nrmse', 'series_type': 'load', 'value': 0.08333333333333338}]
+        expected_nrmse = [{'metric': 'nrmse', 'series_type': 'solar', 'value': 16.666666666666668}, {'metric': 'nrmse', 'series_type': 'wind', 'value': 0.0}, {'metric': 'nrmse', 'series_type': 'load', 'value': 8.33333333333334}]
         assert all_nrmse == expected_nrmse
 
     def test_all_rae(self):
@@ -42,7 +42,7 @@ class Test_Metrics:
         
         all_nrmse = Metrics(original_solar, representative_solar, original_wind, representative_wind, original_load, representative_load)._get_rae()
 
-        expected_nrmse = [{'metric': 'rae', 'series_type': 'solar', 'value': 0.07142857142857155}, {'metric': 'rae', 'series_type': 'wind', 'value': 0.0}, {'metric': 'rae', 'series_type': 'load', 'value': 0.0357142857142855}]
+        expected_nrmse = [{'metric': 'rae', 'series_type': 'solar', 'value': 7.142857142857155}, {'metric': 'rae', 'series_type': 'wind', 'value': 0.0}, {'metric': 'rae', 'series_type': 'load', 'value': 3.57142857142855}]
         assert all_nrmse == expected_nrmse
 
     def test_all_correlations(self):
@@ -79,6 +79,6 @@ class Test_Metrics:
 
         error_metrics = Metrics(original_solar, representative_solar, original_wind, representative_wind, original_load, representative_load).get_error_metrics()
 
-        expected_result = pd.DataFrame({'metric': ['nrmse','nrmse','nrmse', 'rae', 'rae', 'rae','correlation','correlation','correlation'], 'series_type': ['solar', 'wind', 'load','solar', 'wind', 'load',"solar-wind","solar-load", "wind-load"], 'value': [0.16666666666666669, 0.0, 0.08333333333333338, 0.07142857142857155, 0.0, 0.0357142857142855, 0, 0, 0]})
+        expected_result = pd.DataFrame({'metric': ['nrmse','nrmse','nrmse', 'rae', 'rae', 'rae','correlation','correlation','correlation'], 'series_type': ['solar', 'wind', 'load','solar', 'wind', 'load',"solar-wind","solar-load", "wind-load"], 'value': [16.666666666666669, 0.0, 8.333333333333338, 7.142857142857155, 0.0, 3.57142857142855, 0, 0, 0]})
 
         assert_frame_equal(error_metrics, expected_result)

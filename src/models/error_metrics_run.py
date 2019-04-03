@@ -56,7 +56,7 @@ if __name__ == "__main__":
     logger.info("columns name: {}".format(results_dataframe.columns))
 
     # results_dataframe.plot()
-    g = sns.FacetGrid(data=results_dataframe, col="metric")
+    g = sns.FacetGrid(data=results_dataframe, col="metric", sharey=False)
     g.map(plt.scatter, "num_days", "value")
     g.add_legend()
     plt.savefig("results234543.png")
