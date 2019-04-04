@@ -1,7 +1,6 @@
 {
     "python.pythonPath": "temporal_venv/bin/python3",
     "python.linting.pylintEnabled": true,
-
     "python.unitTest.unittestEnabled": false,
     "python.unitTest.nosetestsEnabled": false,
     "python.unitTest.pyTestEnabled": true,
@@ -9,5 +8,5 @@
         "-s",
         "-v",
     ],
-    // "python.jediEnabled": false
+    "python.jediEnabled": false,
 }

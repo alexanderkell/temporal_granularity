@@ -1,7 +1,7 @@
 import pandas as pd
 import logging
 import numpy as np
-from sklearn.metrics import mean_squared_error
+from sklearn.metrics import mean_squared_error, auc
 from math import sqrt
 from scipy import signal
 from scipy import stats
@@ -21,12 +21,15 @@ class SingleMetrics:
         return nrmse
 
     def rae(self):
-        rae = abs((self.original['capacity_factor'].sum()-self.representative['capacity_factor'].sum())/self.original['capacity_factor'].sum())
+        # rae = abs((self.original['capacity_factor'].sum()-self.representative['capacity_factor'].sum())/self.original['capacity_factor'].sum())
+        # logger.info("original_head: \n {}".format(self.original.head()))
+        rae = abs((auc(self.original.index_for_year, self.original['capacity_factor'])-auc(self.representative.index_for_year, self.representative['capacity_factor'])))/auc(self.original.index_for_year, self.original['capacity_factor'])
+        # rae = auc(self.original.datetime ,self.original['capacity_factor'])
+
+        # rae = abs((self.original.capacity_factor.mean())-(self.representative.capacity_factor.mean())/(self.original.capacity_factor.mean()))
+
         rae = rae*100
         return rae
-
-    def display_metrics(self):
-        logger.info("")
 
     # def _approximal(self, ldc):
     #     largest_entry = ldc.iloc[-1]

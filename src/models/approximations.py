@@ -1,18 +1,19 @@
-import pandas as pd
+import logging
+from functools import lru_cache
 from pathlib import Path
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 import seaborn as sns
+import statsmodels.api as sm
+from pandas.plotting import autocorrelation_plot
+from scipy import signal
 from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
-import matplotlib.pyplot as plt
 from sklearn.manifold import TSNE
-from pandas.plotting import autocorrelation_plot
-from statsmodels.tsa.arima_model import ARIMA
-import statsmodels.api as sm
 from sklearn.metrics import pairwise_distances_argmin_min
-from scipy import signal
-import numpy as np
-
-import logging
+from statsmodels.tsa.arima_model import ARIMA
 
 logger = logging.getLogger(__name__)
 
@@ -23,6 +24,19 @@ class ApproximateData:
         self.data = self._import_data(data)
         self.n_days = n_days
         
+    def get_approximated_rdc(self, approximation_method):
+        if approximation_method == 'medoids':
+            centres, y_kmeans = self.cluster_medoids()
+            data = self.get_ramp_duration_curve(centres, y_kmeans)
+        elif approximation_method == "centroids":
+            centres, y_kmeans = self.kmeans_centroids()
+            data = self.get_ramp_duration_curve(centres, y_kmeans)
+        elif approximation_method == "season_average":
+            centres = self.average_by_season()
+            data = self.get_ramp_duration_curve(centres)
+        else:
+            raise ValueError("approximation method can not equal {}, must be medoids, centroids or season_average".format(approximation_method))
+        return data       
 
     def get_approximated_ldc(self, approximation_method):
         if approximation_method == 'medoids':
@@ -55,12 +69,12 @@ class ApproximateData:
         average_day_df = average_day_df.reset_index()
 
         return average_day_df
-
+    
     def kmeans_centroids(self):
 
         each_day = self._long_to_wide_data()
 
-        kmeans = self._get_kmeans(each_day, self.n_days)
+        kmeans = self._get_kmeans(each_day)
         y_kmeans = kmeans.predict(each_day)
         y_kmeans_df = pd.DataFrame(y_kmeans)
         y_kmeans_df = y_kmeans_df.rename(columns={y_kmeans_df.columns[0]:'cluster'})
@@ -78,7 +92,6 @@ class ApproximateData:
         centres_df_long = centres_df_long.rename(columns={"value":"capacity_factor"})
 
         return centres_df_long, y_kmeans_df
-
 
     def cluster_medoids(self):
 
@@ -121,9 +134,22 @@ class ApproximateData:
         data_each_year = data_each_year.rename(columns={"level_0":"index_for_year"})
         return data_each_year
 
-    def get_ramp_curve(self, data):
+    def get_ramp_duration_curve(self, data=None, clusters=None, year=None):
+        if data is None:
+            data=self.data.copy()
+            if not year is None:
+                data = data.reset_index()
+                data = data[(data.datetime>=year) & (data.datetime<str(int(year)+1))]
+
+        elif clusters is None:
+            data = self._scale_data_to_seasons(data)
+        else:
+            data = self._scale_data_to_clusters(data, clusters)
+
         data['diff'] = data.diff()['capacity_factor']
-        data_sorted = data.sort_values('diff', ascending=False).reset_index().reset_index()
+        data_sorted = data.sort_values('diff', ascending=False).reset_index()
+
+        data_sorted = data_sorted.rename(columns={"level_0":"index_for_year"})
 
         return data_sorted
 
