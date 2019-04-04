@@ -6,7 +6,6 @@ from scipy import stats
 from src.metrics.single_metrics import SingleMetrics
 from src.metrics.multi_metrics import MultiMetrics
 
-from itertools import combinations
 
 logger = logging.getLogger(__name__)
 
@@ -14,6 +13,27 @@ logger = logging.getLogger(__name__)
 class Metrics:
 
     def __init__(self, original_solar, representative_solar, original_wind, representative_wind, original_load, representative_load, curve_type):
+        """Calculate error metrics
+
+        Calculates error metrics for the curves constructor is initialised
+        with. Can calculate NRMSE, RAE, and different in correlation.
+
+        :param original_solar: Original solar capacity factor curve
+        :type original_solar: Pandas dataframe
+        :param representative_solar: Solar capacity factor curve which approximates original curve
+        :type representative_solar: Pandas dataframe
+        :param original_wind: Original wind capacity factor curve
+        :type original_wind: Pandas dataframe
+        :param representative_wind: Wind capacity factor curve which approximates original curve
+        :type representative_wind: Pandas dataframe
+        :param original_load: Original load curve
+        :type original_load: Pandas dataframe
+        :param representative_load: Load curve which approximates original load curve
+        :type representative_load: Pandas dataframe
+        :param curve_type: Name of curve to enable differentiation between types of curve
+        :type curve_type: str
+        """
+
         self.original_solar = original_solar
         self.representative_solar = representative_solar
         self.original_wind = original_wind
@@ -23,11 +43,27 @@ class Metrics:
         self.curve_type = curve_type
 
     def get_mean_error_metrics(self):
+        """Get mean error metrics
+
+        Calculates the mean of the error metrics for the curves
+
+        :return: error metrics in the form of rae, nrmse, and correlation
+        :rtype: pandas dataframe
+        """
+
         error_metrics = self.get_error_metrics()
         mean_errors = error_metrics.groupby("metric").value.mean().to_frame()
         return mean_errors
 
     def get_error_metrics(self):
+        """Get error metrics for each curve type
+
+        Calculate the error metrics for each curve. Includes nrmse, rae, correlation
+
+        :return: all error metrics
+        :rtype: pandas dataframe
+        """
+
         metrics = []
 
         all_nrmse = self._get_nrmse()
