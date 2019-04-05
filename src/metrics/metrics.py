@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 class Metrics:
 
     def __init__(self, original_solar, representative_solar, original_wind, representative_wind, original_load, representative_load, curve_type):
-        """Calculate error metrics
+        """Calculate error metrics.
 
         Calculates error metrics for the curves constructor is initialised
         with. Can calculate NRMSE, RAE, and different in correlation.
@@ -33,7 +33,6 @@ class Metrics:
         :param curve_type: Name of curve to enable differentiation between types of curve
         :type curve_type: str
         """
-
         self.original_solar = original_solar
         self.representative_solar = representative_solar
         self.original_wind = original_wind
@@ -43,27 +42,26 @@ class Metrics:
         self.curve_type = curve_type
 
     def get_mean_error_metrics(self):
-        """Get mean error metrics
+        """Get mean error metrics.
 
         Calculates the mean of the error metrics for the curves
 
         :return: error metrics in the form of rae, nrmse, and correlation
         :rtype: pandas dataframe
         """
-
         error_metrics = self.get_error_metrics()
         mean_errors = error_metrics.groupby("metric").value.mean().to_frame()
         return mean_errors
 
     def get_error_metrics(self):
-        """Get error metrics for each curve type
+        """Get error metrics for each curve type.
 
-        Calculate the error metrics for each curve. Includes nrmse, rae, correlation
+        Calculate the error metrics for each curve. Includes nrmse, rae,
+        correlation
 
         :return: all error metrics
         :rtype: pandas dataframe
         """
-
         metrics = []
 
         all_nrmse = self._get_nrmse()
