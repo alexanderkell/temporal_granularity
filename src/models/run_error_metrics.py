@@ -1,13 +1,15 @@
+from pathlib import Path
+import sys
+project_dir = Path("__file__").resolve().parents[1]
+sys.path.insert(0, '{}/temporal_granularity/'.format(project_dir))
+
+from sklearn.preprocessing import MinMaxScaler
 from src.metrics.metrics import Metrics
 from src.models.approximations import ApproximateData
 import logging
-import sys
-from pathlib import Path
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-project_dir = Path("__file__").resolve().parents[1]
-sys.path.insert(0, '{}/temporal_granularity/'.format(project_dir))
 
 
 logger = logging.getLogger(__name__)
@@ -18,14 +20,27 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG, format=log_fmt)
     logger.info("Starting")
 
+    # onshore_data = pd.read_csv(
+    # '/Users/b1017579/Documents/PhD/Projects/14-temporal-granularity/temporal_granularity/data/processed/resources/onshore_processed.csv')
+    # load_data = pd.read_csv(
+    # "/Users/b1017579/Documents/PhD/Projects/14-temporal-granularity/temporal_granularity/data/processed/demand/load_processed_normalised.csv")
+
+    # offshore_data = pd.read_csv(
+    # '{}/temporal_granularity/data/processed/resources/offshore_processed.csv'.format(project_dir))
+    # pv_data = pd.read_csv(
+    # "/Users/b1017579/Documents/PhD/Projects/14-temporal-granularity/temporal_granularity/data/processed/resources/pv_processed.csv")
+
     onshore_data = pd.read_csv(
         '{}/temporal_granularity/data/processed/resources/onshore_processed.csv'.format(project_dir))
-    offshore_data = pd.read_csv(
-        '{}/temporal_granularity/data/processed/resources/offshore_processed.csv'.format(project_dir))
+    load_data = pd.read_csv(
+        "{}/temporal_granularity/data/processed/demand/load_processed_normalised.csv".format(project_dir))
+
+    # offshore_data = pd.read_csv(
+    # '{}/temporal_granularity/data/processed/resources/offshore_processed.csv'.format(project_dir))
     pv_data = pd.read_csv(
         '{}/temporal_granularity/data/processed/resources/pv_processed.csv'.format(project_dir))
 
-    data = [onshore_data, offshore_data, pv_data]
+    data = [pv_data, onshore_data, load_data]
 
     results = []
 
@@ -34,7 +49,7 @@ if __name__ == "__main__":
 
     original_rdcs = []
     approximated_rdcs = []
-    for i in range(100):
+    for i in range(10):
         logger.info("Running iteration {}".format(i))
         for method in ['centroids', 'medoids']:
             logger.info("Approximating using {} method".format(method))

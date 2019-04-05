@@ -18,8 +18,12 @@
     "python.formatting.autopep8Args": [
         "--max-line-length=200"
     ],
+    "python.formatting.autopep8Args": [
+        "--ignore",
+        "E402"
+    ],
     "python.linting.pep8Args": [
-        "--max-line-length=200"
+        "--max-line-length=200",
     ],
     "python.linting.flake8Args": [
         "--ignore=E501"
