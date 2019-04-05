@@ -1,11 +1,19 @@
-import pandas as pd
+"""
+ Description: Wrapper class which calculates error metrics required utilising multi metrics and single metrics class.
+
+ Created on Fri Apr 05 2019
+
+ Copyright (c) 2019 Newcastle University
+ License is MIT
+ Email is alexander@kell.es
+"""
+
 import logging
-import numpy as np
-from scipy import stats
 
-from src.metrics.single_metrics import SingleMetrics
+import pandas as pd
+
 from src.metrics.multi_metrics import MultiMetrics
-
+from src.metrics.single_metrics import SingleMetrics
 
 logger = logging.getLogger(__name__)
 

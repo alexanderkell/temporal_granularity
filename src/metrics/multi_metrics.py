@@ -1,3 +1,14 @@
+"""
+ Description: Functionality to calculate error metrics on many different time series or curves.
+
+ Created on Fri Apr 05 2019
+
+ Copyright (c) 2019 Newcastle University
+ License is MIT
+ Email is alexander@kell.es
+"""
+
+
 import logging
 from scipy import stats
 

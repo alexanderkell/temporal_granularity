@@ -25,4 +25,24 @@
         "--ignore=E501"
     ],
     // "python.linting.pylintEnabled": true
+    "fileHeaderComment.parameter": {
+        "*": {
+            "name": "Alexander Kell",
+            "company": "Newcastle University",
+            "license": "MIT",
+            "email": "alexander@kell.es"
+        }
+    },
+    "fileHeaderComment.template": {
+        "*": [
+            "${commentbegin}",
+            "${commentprefix} Description: .",
+            "${commentprefix} Created on ${date}",
+            "${commentprefix}",
+            "${commentprefix} Copyright (c) ${year} ${company}",
+            "${commentprefix} License is MIT",
+            "${commentprefix} Email is ${email}",
+            "${commentend}"
+        ]
+    }
 }
