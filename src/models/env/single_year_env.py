@@ -34,7 +34,7 @@ class SingleYearEnv():
 
     """
 
-    def __init__(self, solar, wind, load, n_clusters_dim_1, n_clusters_dim_2):
+    def __init__(self, solar, onshore, load, solar_df, onshore_df, load_df, n_clusters_dim_1, n_clusters_dim_2, batch_size):
         """
         Initialise the single year env.
 
@@ -42,23 +42,47 @@ class SingleYearEnv():
 
         """
         self.solar = solar
-        self.wind = wind
+        self.onshore = onshore
         self.load = load
 
-        self.som_solar = SOMCalculator()
+        self.solar_df = solar_df
+        self.onshore_df = onshore_df
+        self.load_df = load_df
 
-        self.som = self.som_calculator.train_som()
+        self.solar_som_calculator = SOMCalculator(
+            self.solar, n_clusters_dim_1, n_clusters_dim_2, batch_size)
+        self.solar_som = self.solar_som_calculator.train_som()
+
+        self.onshore_som_calculator = SOMCalculator(
+            self.onshore, n_clusters_dim_1, n_clusters_dim_2, batch_size)
+        self.onshore_som = self.onshore_som_calculator.train_som()
+
+        self.load_som_calculator = SOMCalculator(
+            self.load, n_clusters_dim_1, n_clusters_dim_2, batch_size)
+        self.load_som = self.load_som_calculator.train_som()
 
     def step(self, action):
-        representative_solar = self.som_calulator.get_representative_days(
-            self.som, self.solar, action)
-        representative_wind = self.som_calulator.get_representative_days(
-            self.som, self.wind, action)
-        representative_load = self.som_calulator.get_representative_days(
-            self.som, self.load, action)
+        """Step through environment
 
-        metrics_calculator = Metrics(self.solar, representative_solar, self.wind,
-                                     representative_wind, self.load, representative_load, "dc")
+        Selects representative days based upon optimisation input
+
+        :param action: Distance from median to select representative day
+        :type action: list float
+        :return: Reward based on error metrics
+        :rtype: list float
+        """
+
+        representative_solar = self.solar_som_calculator.get_representative_days(
+            self.solar_som, self.solar, action[0])
+        representative_wind = self.onshore_som_calculator.get_representative_days(
+            self.onshore_som, self.onshore, action[1])
+        representative_load = self.load_som_calculator.get_representative_days(
+            self.load_som, self.load, action[2])
+
+        logger.info("representative_load: {}".format(representative_load))
+
+        metrics_calculator = Metrics(self.solar_df, representative_solar, self.onshore_df,
+                                     representative_wind, self.load_df, representative_load, "dc")
 
         error_metrics = metrics_calculator.get_mean_error_metrics()
         logger.info("error_metrics: {}".format(error_metrics))

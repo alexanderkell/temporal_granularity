@@ -17,10 +17,13 @@ class SOMCalculator:
 
     """
 
-    def __init__(self, data):
-        pass
+    def __init__(self, data, n_clusters_dim_1, n_clusters_dim_2, batch_size):
+        self.data = data
+        self.n_clusters_dim_1 = n_clusters_dim_1
+        self.n_clusters_dim_2 = n_clusters_dim_2
+        self.batch_size = batch_size
 
-    def train_som(self, data, n_clusters_dim_1, n_clusters_dim_2, batch_size):
+    def train_som(self):
         """Get som object which is trained on data.
 
         Get som object which is trained on data. Set batch size for training as well as 
@@ -37,12 +40,14 @@ class SOMCalculator:
         :return: Returns trained som object
         :rtype: MiniSom
         """
-        som = MiniSom(n_clusters_dim_1, n_clusters_dim_2, 24, sigma=0.3,
+        som = MiniSom(self.n_clusters_dim_1, self.n_clusters_dim_2, 24, sigma=0.3,
                       learning_rate=0.5, neighborhood_function='gaussian', random_seed=10)
 
-        som.pca_weights_init(data)
+        print(self.data)
+        som.pca_weights_init(self.data)
         logger.info("Training SOM.")
-        som.train_batch(data, batch_size, verbose=True)  # random training
+        som.train_batch(self.data, self.batch_size,
+                        verbose=True)  # random training
         logger.info("\n Trained SOM.")
 
         return som
@@ -50,7 +55,7 @@ class SOMCalculator:
     def get_representative_days(self, som, training_data, actions):
 
         win_map = som.win_map(training_data)
-
+        print("actions: {}".format(actions))
         representative_days = []
         for position, action in zip(win_map.keys(), actions):
             print(position)
@@ -67,6 +72,5 @@ class SOMCalculator:
             print(sorted_dist)
             k_smallest = np.argpartition(distance, action)[action]
             print(k_smallest)
-            print(win_map[position][k_smallest])
             representative_days.append(k_smallest)
         return representative_days

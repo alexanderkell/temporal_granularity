@@ -20,6 +20,9 @@ import random
 from deap import base
 from deap import creator
 from deap import tools
+from src.models.env.single_year_env import SingleYearEnv
+import numpy as np
+
 
 creator.create("FitnessMin", base.Fitness, weights=(1.0,))
 creator.create("Individual", list, fitness=creator.FitnessMin)
@@ -31,25 +34,47 @@ toolbox = base.Toolbox()
 #                      which corresponds to integers sampled uniformly
 #                      from the range [0,1] (i.e. 0 or 1 with equal
 #                      probability)
-toolbox.register("attr_bool", random.randint, 0, 1)
+toolbox.register("attr_bool", np.random.randint, low=0, high=2, size=(3, 5))
 
 # Structure initializers
 #                         define 'individual' to be an individual
 #                         consisting of 100 'attr_bool' elements ('genes')
 toolbox.register("individual", tools.initRepeat, creator.Individual,
-                 toolbox.attr_bool, 100)
+                 toolbox.attr_bool, 3)
 
 # define the population to be a list of individuals
 toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 
 # the goal ('fitness') function to be maximized
 
-env = SingleYearEnv()
+onshore_data = pd.read_csv(
+    '{}/temporal_granularity/data/processed/data_grouped_by_day/pv_each_day.csv'.format(project_dir))
+
+onshore_data_np = onshore_data.reset_index().drop(
+    columns=["date", 'index']).values
+
+load_data = pd.read_csv(
+    "{}/temporal_granularity/data/processed/data_grouped_by_day/load_normalised_each_day.csv".format(project_dir))
+
+load_data_np = load_data.reset_index().drop(columns=["date", 'index']).values
+
+
+# offshore_data = pd.read_csv(
+# '{}/temporal_granularity/data/processed/resources/offshore_processed.csv'.format(project_dir))
+pv_data = pd.read_csv(
+    '{}/temporal_granularity/data/processed/data_grouped_by_day/pv_each_day.csv'.format(project_dir))
+
+pv_data_np = pv_data.reset_index().drop(columns=["date", 'index']).values
+
+
+env = SingleYearEnv(pv_data_np, onshore_data_np, load_data_np,
+                    pv_data, onshore_data, load_data, 2, 2, 5000)
 
 
 def evalOneMax(individual):
-
-    return sum(individual),
+    print("individual : {}".format(individual))
+    result = env.step(individual)
+    return result,
 
 
 # ----------
@@ -163,13 +188,5 @@ def main(env):
 
 
 if __name__ == "__main__":
-    onshore_data = pd.read_csv(
-        '{}/temporal_granularity/data/processed/resources/onshore_processed.csv'.format(project_dir))
-    offshore_data = pd.read_csv(
-        '{}/temporal_granularity/data/processed/resources/offshore_processed.csv'.format(project_dir))
-    pv_data = pd.read_csv(
-        '{}/temporal_granularity/data/processed/resources/pv_processed.csv'.format(project_dir))
-
-    SingleYearEnv()
 
     main(env)

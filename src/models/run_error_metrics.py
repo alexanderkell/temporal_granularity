@@ -24,9 +24,6 @@ if __name__ == "__main__":
     # '/Users/b1017579/Documents/PhD/Projects/14-temporal-granularity/temporal_granularity/data/processed/resources/onshore_processed.csv')
     # load_data = pd.read_csv(
     # "/Users/b1017579/Documents/PhD/Projects/14-temporal-granularity/temporal_granularity/data/processed/demand/load_processed_normalised.csv")
-
-    # offshore_data = pd.read_csv(
-    # '{}/temporal_granularity/data/processed/resources/offshore_processed.csv'.format(project_dir))
     # pv_data = pd.read_csv(
     # "/Users/b1017579/Documents/PhD/Projects/14-temporal-granularity/temporal_granularity/data/processed/resources/pv_processed.csv")
 

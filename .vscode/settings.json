@@ -13,6 +13,8 @@
     "autoDocstring.includeDescription": true,
     "workbench.list.horizontalScrolling": true,
     "workbench.tree.indent": 20,
+    "python.formatting.provider": "autopep8",
+    "editor.formatOnSave": true,
     "editor.formatOnPaste": true,
     "editor.formatOnType": true,
     "python.formatting.autopep8Args": [
@@ -47,6 +49,12 @@
             "${commentprefix} License is MIT",
             "${commentprefix} Email is ${email}",
             "${commentend}"
+        ]
+    },
+    "macros": {
+        "commentLine": [
+            "editor.action.commentLine",
+            "cursorDown"
         ]
     }
 }
