@@ -61,8 +61,8 @@ class ApproximateData:
         data_season = self.data.copy()
         data_season['season'] = pd.cut(
             doy + 11 - 366 * (doy > 355), bins=bins, labels=labels)
-        data_season.loc[data_season['season']
-                        == 'Winter1', 'season'] = 'Winter'
+        data_season.loc[data_season['season'] ==
+                        'Winter1', 'season'] = 'Winter'
 
         data_hour_day = data_season.copy()
         data_hour_day['hour'] = self.data.index.hour
@@ -138,6 +138,7 @@ class ApproximateData:
                 'capacity_factor', ascending=False).reset_index().reset_index()
         else:
             data_each_year = self._scale_data_to_clusters(data, clusters)
+
             data_each_year = data_each_year.sort_values(
                 'capacity_factor', ascending=False).reset_index()
             data_each_year = data_each_year.drop(
@@ -186,9 +187,10 @@ class ApproximateData:
     def _scale_data_to_clusters(self, data, clusters):
         clusters = clusters.reset_index()
         cluster_weights = clusters.groupby('cluster').count()
-        # [['cluster','capacity_factor','year']]
+
         scaled_data = data.merge(cluster_weights, on='cluster')
-        scaled_data['index'] = scaled_data['index'] / (cluster_weights.iloc[:,0].sum()/365)
+        scaled_data['index'] = scaled_data['index'] / \
+            (cluster_weights.iloc[:, 0].sum() / 365)
 
         scaled_data['index'] = np.ceil(scaled_data['index']).astype(int)
         # scaled_data['index'] = scaled_data['index'].round(decimals=0)
@@ -200,7 +202,7 @@ class ApproximateData:
         return scaled_data
 
     def _import_data(self, data):
-        
+
         data = data.drop('Unnamed: 0', axis=1)
 
         data.set_index('datetime', inplace=True)

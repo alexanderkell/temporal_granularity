@@ -1,4 +1,5 @@
 import sys
+sys.settrace
 from pathlib import Path
 project_dir = Path("__file__").resolve().parents[1]
 sys.path.insert(0, '{}/temporal_granularity/'.format(project_dir))
@@ -36,13 +37,13 @@ toolbox = base.Toolbox()
 #                      which corresponds to integers sampled uniformly
 #                      from the range [0,1] (i.e. 0 or 1 with equal
 #                      probability)
-toolbox.register("attr_bool", np.random.randint, low=0, high=5, size=(3,))
+toolbox.register("attr_bool", np.random.randint, low=0, high=100)
 
 # Structure initializers
 #                         define 'individual' to be an individual
 #                         consisting of 100 'attr_bool' elements ('genes')
 toolbox.register("individual", tools.initRepeat, creator.Individual,
-                 toolbox.attr_bool, 3)
+                 toolbox.attr_bool, 3 * 3 + 2)
 
 # define the population to be a list of individuals
 toolbox.register("population", tools.initRepeat, list, toolbox.individual)
@@ -76,13 +77,11 @@ load_data = pd.read_csv(
     "{}/temporal_granularity/data/processed/demand/load_processed_normalised.csv".format(project_dir))
 
 
-env = SingleYearEnv(pv_data_np, onshore_data_np, load_data_np,
-                    pv_data, onshore_data, load_data, 2, 2, 5000)
-
-
 def evalOneMax(individual):
+    env = SingleYearEnv(pv_data_np, onshore_data_np, load_data_np,
+                        pv_data, onshore_data, load_data, round(individual[0] / 10) + 1, round(individual[1] / 10) + 1, 20000)
     logger.debug("individual : {}".format(individual))
-    result = env.step(individual)
+    result = env.step(individual[2:])
     return result,
 
 
@@ -108,12 +107,12 @@ toolbox.register("select", tools.selTournament, tournsize=3)
 # ----------
 
 
-def main(env):
+def main():
     random.seed(64)
 
     # create an initial population of 300 individuals (where
     # each individual is a list of integers)
-    pop = toolbox.population(n=300)
+    pop = toolbox.population(n=40)
 
     # CXPB  is the probability with which two individuals
     #       are crossed
@@ -137,7 +136,7 @@ def main(env):
     g = 0
 
     # Begin the evolution
-    while max(fits) < 100 and g < 1000:
+    while max(fits) < -5 and g < 1000:
         # A new generation
         g = g + 1
         print("-- Generation %i --" % g)
@@ -190,14 +189,15 @@ def main(env):
         print("  Avg %s" % mean)
         print("  Std %s" % std)
 
-    print("-- End of (successful) evolution --")
+        print("-- End of (successful) evolution --")
 
-    best_ind = tools.selBest(pop, 1)[0]
-    print("Best individual is %s, %s" % (best_ind, best_ind.fitness.values))
+        best_ind = tools.selBest(pop, 1)[0]
+        print("Best individual is %s, %s" %
+              (best_ind, best_ind.fitness.values))
 
 
 if __name__ == "__main__":
     log_fmt = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    logging.basicConfig(level=logging.DEBUG, format=log_fmt)
+    logging.basicConfig(level=logging.INFO, format=log_fmt)
 
-    main(env)
+    main()

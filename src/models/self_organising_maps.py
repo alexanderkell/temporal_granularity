@@ -1,6 +1,6 @@
 from pathlib import Path
 import logging
-
+import functools
 import numpy as np
 import pandas as pd
 from minisom import MiniSom
@@ -23,6 +23,7 @@ class SOMCalculator:
         self.n_clusters_dim_2 = n_clusters_dim_2
         self.batch_size = batch_size
 
+    @functools.lru_cache(maxsize=128, typed=False)
     def train_som(self):
         """Get som object which is trained on data.
 
@@ -43,12 +44,10 @@ class SOMCalculator:
         som = MiniSom(self.n_clusters_dim_1, self.n_clusters_dim_2, 24, sigma=0.3,
                       learning_rate=0.5, neighborhood_function='gaussian', random_seed=10)
 
-        print(self.data)
-        som.pca_weights_init(self.data)
-        logger.info("Training SOM.")
+        # som.pca_weights_init(self.data)
+        som.random_weights_init(self.data)
         som.train_batch(self.data, self.batch_size,
-                        verbose=True)  # random training
-        logger.info("\n Trained SOM.")
+                        verbose=False)  # random training
 
         return som
 
@@ -56,17 +55,30 @@ class SOMCalculator:
 
         win_map = som.win_map(training_data)
         representative_days = []
-        for position, action in zip(win_map.keys(), actions):
+        cluster_numbers = []
+        for i, (position, action) in enumerate(zip(win_map.keys(), actions)):
             median_day = np.median(win_map[position], axis=0)
-
+            cluster_size = len(win_map[position])
             distance = cdist(median_day.reshape(
                 1, -1), np.array(win_map[position]).reshape(len(win_map[position]), -1)).flatten()
-            sorted_args = np.argsort(distance)
-            sorted_dist = np.sort(distance)
-            k_smallest = np.argpartition(distance, action)[action]
+            try:
+                k_smallest = np.argpartition(distance, action)[action]
+            except ValueError:
+                k_smallest = np.argpartition(distance, 0)[-1]
             logger.debug("action: {}".format(action))
             # representative_days.append(k_smallest)
-            logger.debug("k smallest day".format(
+            logger.debug("k smallest day:".format(
                 win_map[position][k_smallest]))
             representative_days.append(win_map[position][k_smallest])
-        return representative_days
+            cluster_numbers.append(
+                {"cluster_num": cluster_size, "cluster": i})
+
+        representative_days = pd.DataFrame(
+            representative_days).reset_index().rename(columns={"index": "cluster"})
+
+        cluster_df = pd.DataFrame(cluster_numbers)
+
+        cluster_df = cluster_df.reindex(
+            cluster_df.index.repeat(cluster_df['cluster_num']))
+
+        return representative_days, cluster_df
