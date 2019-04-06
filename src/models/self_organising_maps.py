@@ -55,22 +55,18 @@ class SOMCalculator:
     def get_representative_days(self, som, training_data, actions):
 
         win_map = som.win_map(training_data)
-        print("actions: {}".format(actions))
         representative_days = []
         for position, action in zip(win_map.keys(), actions):
-            print(position)
             median_day = np.median(win_map[position], axis=0)
-            print(len(win_map[position]))
 
-            print(cdist(median_day.reshape(
-                1, -1), np.array(win_map[position]).reshape(len(win_map[position]), -1)))
             distance = cdist(median_day.reshape(
                 1, -1), np.array(win_map[position]).reshape(len(win_map[position]), -1)).flatten()
             sorted_args = np.argsort(distance)
             sorted_dist = np.sort(distance)
-            print(sorted_args)
-            print(sorted_dist)
             k_smallest = np.argpartition(distance, action)[action]
-            print(k_smallest)
-            representative_days.append(k_smallest)
+            logger.debug("action: {}".format(action))
+            # representative_days.append(k_smallest)
+            logger.debug("k smallest day".format(
+                win_map[position][k_smallest]))
+            representative_days.append(win_map[position][k_smallest])
         return representative_days

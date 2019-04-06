@@ -72,12 +72,26 @@ class SingleYearEnv():
         :rtype: list float
         """
 
-        representative_solar = self.solar_som_calculator.get_representative_days(
-            self.solar_som, self.solar, action[0])
-        representative_wind = self.onshore_som_calculator.get_representative_days(
-            self.onshore_som, self.onshore, action[1])
-        representative_load = self.load_som_calculator.get_representative_days(
-            self.load_som, self.load, action[2])
+        representative_solar = pd.DataFrame(self.solar_som_calculator.get_representative_days(
+            self.solar_som, self.solar, action[0]))
+        representative_wind = pd.DataFrame(self.onshore_som_calculator.get_representative_days(
+            self.onshore_som, self.onshore, action[1]))
+        representative_load = pd.DataFrame(self.load_som_calculator.get_representative_days(
+            self.load_som, self.load, action[2]))
+
+        logger.info("load: {}".format(self.load_df.head()))
+
+        representative_solar = self.wide_to_long(representative_solar)
+
+        representative_wind = self.wide_to_long(representative_wind)
+
+        representative_load = self.wide_to_long(representative_load)
+
+        # logger.info("solar_df: \n{}".format(self.solar_df.head()))
+
+        # self.solar_df = self.wide_to_long(self.solar_df)
+        # self.onshore_df = self.wide_to_long(self.onshore_df)
+        # self.load_df = self.wide_to_long(self.load_df)
 
         logger.info("representative_load: {}".format(representative_load))
 
@@ -87,3 +101,9 @@ class SingleYearEnv():
         error_metrics = metrics_calculator.get_mean_error_metrics()
         logger.info("error_metrics: {}".format(error_metrics))
         return 1
+
+    def wide_to_long(self, representative_load):
+        representative_load = pd.melt(
+            representative_load, value_vars=[
+                0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23], value_name="capacity_factor")
+        return representative_load

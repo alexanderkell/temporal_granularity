@@ -41,17 +41,17 @@ if __name__ == "__main__":
 
     results = []
 
-    original_ldcs = []
-    approximated_ldcs = []
-
-    original_rdcs = []
-    approximated_rdcs = []
     for i in range(10):
         logger.info("Running iteration {}".format(i))
         for method in ['centroids', 'medoids']:
             logger.info("Approximating using {} method".format(method))
             for num_days in [4, 8, 12, 24, 48]:
                 logger.info("Calculating using {} days".format(num_days))
+                original_ldcs = []
+                approximated_ldcs = []
+
+                original_rdcs = []
+                approximated_rdcs = []
                 original_ldcs.clear()
                 approximated_ldcs.clear()
 

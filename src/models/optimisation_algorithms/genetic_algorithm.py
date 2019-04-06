@@ -22,9 +22,11 @@ from deap import creator
 from deap import tools
 from src.models.env.single_year_env import SingleYearEnv
 import numpy as np
+import logging
 
+logger = logging.getLogger(__name__)
 
-creator.create("FitnessMin", base.Fitness, weights=(1.0,))
+creator.create("FitnessMin", base.Fitness, weights=(3.0,))
 creator.create("Individual", list, fitness=creator.FitnessMin)
 
 toolbox = base.Toolbox()
@@ -34,7 +36,7 @@ toolbox = base.Toolbox()
 #                      which corresponds to integers sampled uniformly
 #                      from the range [0,1] (i.e. 0 or 1 with equal
 #                      probability)
-toolbox.register("attr_bool", np.random.randint, low=0, high=2, size=(3, 5))
+toolbox.register("attr_bool", np.random.randint, low=0, high=5, size=(3,))
 
 # Structure initializers
 #                         define 'individual' to be an individual
@@ -66,13 +68,20 @@ pv_data = pd.read_csv(
 
 pv_data_np = pv_data.reset_index().drop(columns=["date", 'index']).values
 
+pv_data = pd.read_csv(
+    '{}/temporal_granularity/data/processed/resources/pv_processed.csv'.format(project_dir))
+onshore_data = pd.read_csv(
+    '{}/temporal_granularity/data/processed/resources/onshore_processed.csv'.format(project_dir))
+load_data = pd.read_csv(
+    "{}/temporal_granularity/data/processed/demand/load_processed_normalised.csv".format(project_dir))
+
 
 env = SingleYearEnv(pv_data_np, onshore_data_np, load_data_np,
                     pv_data, onshore_data, load_data, 2, 2, 5000)
 
 
 def evalOneMax(individual):
-    print("individual : {}".format(individual))
+    logger.debug("individual : {}".format(individual))
     result = env.step(individual)
     return result,
 
@@ -188,5 +197,7 @@ def main(env):
 
 
 if __name__ == "__main__":
+    log_fmt = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    logging.basicConfig(level=logging.DEBUG, format=log_fmt)
 
     main(env)
