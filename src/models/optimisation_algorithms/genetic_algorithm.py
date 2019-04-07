@@ -1,5 +1,4 @@
 import sys
-sys.settrace
 from pathlib import Path
 project_dir = Path("__file__").resolve().parents[1]
 sys.path.insert(0, '{}/temporal_granularity/'.format(project_dir))
@@ -25,9 +24,11 @@ from src.models.env.single_year_env import SingleYearEnv
 import numpy as np
 import logging
 
+from scoop import futures
+
 logger = logging.getLogger(__name__)
 
-creator.create("FitnessMin", base.Fitness, weights=(3.0,))
+creator.create("FitnessMin", base.Fitness, weights=(1.0, 1.0, 1.0))
 creator.create("Individual", list, fitness=creator.FitnessMin)
 
 toolbox = base.Toolbox()
@@ -43,7 +44,7 @@ toolbox.register("attr_bool", np.random.randint, low=0, high=100)
 #                         define 'individual' to be an individual
 #                         consisting of 100 'attr_bool' elements ('genes')
 toolbox.register("individual", tools.initRepeat, creator.Individual,
-                 toolbox.attr_bool, 3 * 3 + 2)
+                 toolbox.attr_bool, 3 * 11 * 11 + 2)
 
 # define the population to be a list of individuals
 toolbox.register("population", tools.initRepeat, list, toolbox.individual)
@@ -78,22 +79,29 @@ load_data = pd.read_csv(
 
 
 def evalOneMax(individual):
+
     env = SingleYearEnv(pv_data_np, onshore_data_np, load_data_np,
                         pv_data, onshore_data, load_data, round(individual[0] / 10) + 1, round(individual[1] / 10) + 1, 20000)
-    logger.debug("individual : {}".format(individual))
+    # logger.debug("individual : {}".format(individual))
     result = env.step(individual[2:])
-    return result,
+    # logger.info("individual: {}, result: {}".format(individual, result))
+    result = result[0], result[1], result[2]
+    # return
+
+    return result
 
 
+#
+#
 # ----------
 # Operator registration
 # ----------
 # register the goal / fitness function
 toolbox.register("evaluate", evalOneMax)
-
+#
 # register the crossover operator
 toolbox.register("mate", tools.cxTwoPoint)
-
+#
 # register a mutation operator with a probability to
 # flip each attribute/gene of 0.05
 toolbox.register("mutate", tools.mutFlipBit, indpb=0.05)
@@ -104,6 +112,8 @@ toolbox.register("mutate", tools.mutFlipBit, indpb=0.05)
 # drawn randomly from the current generation.
 toolbox.register("select", tools.selTournament, tournsize=3)
 
+toolbox.register("map_distributed", futures.map)
+
 # ----------
 
 
@@ -112,7 +122,7 @@ def main():
 
     # create an initial population of 300 individuals (where
     # each individual is a list of integers)
-    pop = toolbox.population(n=40)
+    pop = toolbox.population(n=300)
 
     # CXPB  is the probability with which two individuals
     #       are crossed
@@ -123,7 +133,7 @@ def main():
     print("Start of evolution")
 
     # Evaluate the entire population
-    fitnesses = list(map(toolbox.evaluate, pop))
+    fitnesses = list(toolbox.map_distributed(toolbox.evaluate, pop))
     for ind, fit in zip(pop, fitnesses):
         ind.fitness.values = fit
 
@@ -136,7 +146,8 @@ def main():
     g = 0
 
     # Begin the evolution
-    while max(fits) < -5 and g < 1000:
+    # while max(fits) < -5 and g < 1000:
+    while g < 1000:
         # A new generation
         g = g + 1
         print("-- Generation %i --" % g)

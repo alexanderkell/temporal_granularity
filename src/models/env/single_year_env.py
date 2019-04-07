@@ -110,10 +110,11 @@ class SingleYearEnv():
 
         error_metrics = metrics_calculator.get_mean_error_metrics()
 
-        reward = -error_metrics.value.sum()
-        logger.info("reward: {}".format(reward))
-
-        return reward
+        # reward = -error_metrics.value.sum()
+        # logger.info("error_metrics: {}".format(error_metrics))
+        # logger.info("error_metrics: {}".format(error_metrics.iloc[0]))
+        # return reward
+        return -error_metrics.iloc[0].value, -error_metrics.iloc[1].value, -error_metrics.iloc[2].value
 
     def wide_to_long(self, representative_load):
         representative_load = pd.melt(
