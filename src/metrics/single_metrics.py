@@ -24,6 +24,8 @@ class SingleMetrics:
         self.representative = self.representative.replace(
             [np.inf, -np.inf], np.nan).fillna(method="ffill")
 
+        logger.debug("self.representative: {}".format(self.representative))
+
         nrmse = sqrt(mean_squared_error(self.original['capacity_factor'], self.representative['capacity_factor'])) / (
             self.original['capacity_factor'].max() - self.original['capacity_factor'].min())
         nrmse = nrmse * 100

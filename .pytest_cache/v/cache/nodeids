@@ -1,4 +1,5 @@
 [
+  "test/test_manipulations/test_digitize.py::Test_Digitize::test_digitize",
   "test/test_metrics/test_metrics.py::Test_Metrics::test_all_nrmse",
   "test/test_metrics/test_metrics.py::Test_Metrics::test_all_rae",
   "test/test_metrics/test_metrics.py::Test_Metrics::test_all_correlations",

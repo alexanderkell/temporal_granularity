@@ -22,6 +22,7 @@ import pandas as pd
 from pathlib import Path
 from scoop import futures
 import numpy as np
+from mpl_toolkits.mplot3d import Axes3D
 
 project_dir = Path("__file__").resolve().parents[1]
 sys.path.insert(0, '{}/temporal_granularity/'.format(project_dir))
@@ -38,19 +39,25 @@ from deap import benchmarks
 from deap.benchmarks.tools import diversity, convergence, hypervolume
 from deap import creator
 from deap import tools
-from src.models.env.single_year_env import SingleYearEnv
+from src.models.env.som_env import SOMEnv
+from src.models.env.k_means_env import KMeansEnv
+import logging
+
+logging.basicConfig(level=logging.INFO)
 
 
 onshore_data = pd.read_csv(
     '{}/temporal_granularity/data/processed/data_grouped_by_day/pv_each_day.csv'.format(project_dir))
 
-onshore_data_np = onshore_data.reset_index().drop(
+onshore_data_np = onshore_data[(onshore_data.date > "2014") & (
+    onshore_data.date < "2015")].reset_index().drop(
     columns=["date", 'index']).values
 
 load_data = pd.read_csv(
     "{}/temporal_granularity/data/processed/data_grouped_by_day/load_normalised_each_day.csv".format(project_dir))
 
-load_data_np = load_data.reset_index().drop(columns=["date", 'index']).values
+load_data_np = load_data[(load_data.date > "2014") & (
+    load_data.date < "2015")].reset_index().drop(columns=["date", 'index']).values
 
 
 # offshore_data = pd.read_csv(
@@ -58,7 +65,8 @@ load_data_np = load_data.reset_index().drop(columns=["date", 'index']).values
 pv_data = pd.read_csv(
     '{}/temporal_granularity/data/processed/data_grouped_by_day/pv_each_day.csv'.format(project_dir))
 
-pv_data_np = pv_data.reset_index().drop(columns=["date", 'index']).values
+pv_data_np = pv_data[(pv_data.date > "2014") & (
+    pv_data.date < "2015")].reset_index().drop(columns=["date", 'index']).values
 
 pv_data = pd.read_csv(
     '{}/temporal_granularity/data/processed/resources/pv_processed.csv'.format(project_dir))
@@ -68,9 +76,9 @@ load_data = pd.read_csv(
     "{}/temporal_granularity/data/processed/demand/load_processed_normalised.csv".format(project_dir))
 
 
-creator.create("FitnessMax", base.Fitness, weights=(1.0, 1.0, 1.0))
+creator.create("FitnessMin", base.Fitness, weights=(-1.0, -1.0, -1.0))
 creator.create("Individual", array.array, typecode='d',
-               fitness=creator.FitnessMax)
+               fitness=creator.FitnessMin)
 
 toolbox = base.Toolbox()
 
@@ -82,7 +90,8 @@ BOUND_LOW, BOUND_UP = 0.0, 100
 # BOUND_LOW, BOUND_UP = [0.0] + [-5.0]*9, [1.0] + [5.0]*9
 
 # Functions zdt1, zdt2, zdt3 have 30 dimensions, zdt4 and zdt6 have 10
-NDIM = 3 * 11 * 11 + 2
+# NDIM = 3 * 11 * 11 + 2
+NDIM = 3 * 51 + 1
 
 
 def uniform(low, up, size=None):
@@ -92,15 +101,24 @@ def uniform(low, up, size=None):
         return [random.randint(a, b) for a, b in zip([low] * size, [up] * size)]
 
 
-def evalOneMax(individual):
+def evalMinSOM(individual):
     individual = [int(i) for i in individual]
-    env = SingleYearEnv(pv_data_np, onshore_data_np, load_data_np,
-                        pv_data, onshore_data, load_data, round(individual[0] / 10) + 1, round(individual[1] / 10) + 1, 20000)
+    env = SOMEnv(pv_data_np, onshore_data_np, load_data_np,
+                 pv_data, onshore_data, load_data, round(individual[0] / 10) + 1, round(individual[1] / 10) + 1, 20000)
     result = env.step(individual[2:])
     result = result[0], result[1], result[2]
 
     return result
     # return individual[0], individual[1], individual[2]
+
+
+def evalMinKMeans(individual):
+    individual = [int(i) for i in individual]
+    env = KMeansEnv(pv_data_np, onshore_data_np, load_data_np,
+                    pv_data, onshore_data, load_data, int(individual[0] / 2) + 1)
+    result = env.step(individual[1:])
+    result = result[0], result[1], result[2]
+    return result
 
 
 toolbox.register("map_distributed", futures.map)
@@ -113,7 +131,8 @@ toolbox.register("individual", tools.initRepeat, creator.Individual,
 
 toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 
-toolbox.register("evaluate", evalOneMax)
+toolbox.register("evaluate", evalMinKMeans)
+# toolbox.register("evaluate", evalMinSOM)
 toolbox.register("mate", tools.cxSimulatedBinaryBounded,
                  low=BOUND_LOW, up=BOUND_UP, eta=20.0)
 toolbox.register("mutate", tools.mutPolynomialBounded,
@@ -125,7 +144,7 @@ def main(seed=None):
     random.seed(seed)
 
     NGEN = 250
-    MU = 20
+    MU = 100
     CXPB = 0.9
 
     stats = tools.Statistics(lambda ind: ind.fitness.values)
@@ -189,14 +208,37 @@ def main(seed=None):
         print("Best individual is %s, %s" %
               (np.rint(best_ind), best_ind.fitness.values))
 
-        front = numpy.array([ind.fitness.values for ind in pop])
+        front = numpy.array(
+            [ind.fitness.values + tuple(ind) for ind in pop])
+
+        np.savetxt('{}/temporal_granularity/src/models/optimisation_algorithms/genetic_algorithms/pareto_front/k_means/data/pareto_front_{}.csv'.format(
+            project_dir, gen), front, delimiter=",")
+        fig = plt.figure(1)
+
+        columns = 2
+        rows = 1
+
+        fig.add_subplot(rows, columns, 1)
         plt.scatter(front[:, 0], front[:, 1], c="b")
-        plt.axis("tight")
+
+        fig.add_subplot(rows, columns, 2)
+        plt.scatter(front[:, 1], front[:, 2], c="b")
+
         plt.savefig(
-            '{}/temporal_granularity/src/models/optimisation_algorithms/genetic_algorithms/pareto_front/pareto_front_{}.png'.format(project_dir, gen))
+            '{}/temporal_granularity/src/models/optimisation_algorithms/genetic_algorithms/pareto_front/k_means/images/pareto_front_{}.png'.format(project_dir, gen))
+        plt.close()
+
+        fig = plt.figure(1)
+        ax = Axes3D(fig)
+        ax.scatter(front[:, 0], front[:, 1], front[:, 2], c='red')
+
+        ax.axis("tight")
+        fig.savefig(
+            '{}/temporal_granularity/src/models/optimisation_algorithms/genetic_algorithms/pareto_front/k_means/images/pareto_front_3D_{}.png'.format(project_dir, gen))
+        plt.close()
 
     # print("Final population hypervolume is %f" %
-        #   hypervolume(pop, [11.0, 11.0]))
+    #   hypervolume(pop, [11.0, 11.0]))
 
     return pop, logbook
 

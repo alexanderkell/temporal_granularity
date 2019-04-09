@@ -11,6 +11,7 @@ from scipy.spatial.distance import cdist
 from src.models.manipulations.self_organising_maps import SOMCalculator
 from src.metrics.metrics import Metrics
 from src.models.manipulations.approximations import ApproximateData
+from src.models.env.env import Env
 
 import logging
 
@@ -27,7 +28,7 @@ logger = logging.getLogger(__name__)
 """
 
 
-class SOMEnv():
+class SOMEnv(Env):
     """
     Environment to calculate error metrics from each step made.
 
@@ -42,17 +43,13 @@ class SOMEnv():
         Instantiation of SingleYearEnv object which returns reward for each step. In this case, the reward being error metrics.
 
         """
-        self.solar = solar
-        self.onshore = onshore
-        self.load = load
+        super().__init__(solar, onshore, load, solar_df, onshore_df, load_df)
 
-        self.np_data_list = [self.solar, self.onshore, self.load]
+        # self.solar = solar
+        # self.onshore = onshore
+        # self.load = load
 
-        self.solar_df = solar_df
-        self.onshore_df = onshore_df
-        self.load_df = load_df
-
-        self.df_data_list = [self.solar_df, self.onshore_df, self.load_df]
+        # self.np_data_list = [self.solar, self.onshore, self.load]
 
         self.solar_som_calculator = SOMCalculator(
             self.solar, n_clusters_dim_1, n_clusters_dim_2, batch_size)
@@ -92,6 +89,8 @@ class SOMEnv():
                 som, np_data, action)
 
             representative_days = pd.DataFrame(representative_days)
+
+            logger.debug("representative_days: {}".format(representative_days))
 
             representative_days = self.wide_to_long(representative_days)
             approximation_calc = ApproximateData(df_data, 4)

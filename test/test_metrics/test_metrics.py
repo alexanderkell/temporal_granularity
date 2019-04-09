@@ -1,4 +1,3 @@
-import math
 import logging
 from src.metrics.metrics import Metrics
 from pandas.util.testing import assert_frame_equal

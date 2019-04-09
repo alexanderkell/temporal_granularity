@@ -4,7 +4,7 @@ project_dir = Path("__file__").resolve().parents[1]
 sys.path.insert(0, '{}/temporal_granularity/'.format(project_dir))
 
 import pandas as pd
-from src.models.env.single_year_env import SingleYearEnv
+from src.models.env.som_env import SOMEnv
 
 """
  Description: Use of genetic algorithm to optimally select representative days.
@@ -20,7 +20,7 @@ import random
 from deap import base
 from deap import creator
 from deap import tools
-from src.models.env.single_year_env import SingleYearEnv
+from src.models.env.som_env import SOMEnv
 import numpy as np
 import logging
 
@@ -80,8 +80,8 @@ load_data = pd.read_csv(
 
 def evalOneMax(individual):
 
-    env = SingleYearEnv(pv_data_np, onshore_data_np, load_data_np,
-                        pv_data, onshore_data, load_data, round(individual[0] / 10) + 1, round(individual[1] / 10) + 1, 20000)
+    env = SOMEnv(pv_data_np, onshore_data_np, load_data_np,
+                 pv_data, onshore_data, load_data, round(individual[0] / 10) + 1, round(individual[1] / 10) + 1, 20000)
     # logger.debug("individual : {}".format(individual))
     result = env.step(individual[2:])
     # logger.info("individual: {}, result: {}".format(individual, result))
