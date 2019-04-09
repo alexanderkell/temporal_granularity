@@ -8,9 +8,9 @@ import numpy as np
 import pandas as pd
 from minisom import MiniSom
 from scipy.spatial.distance import cdist
-from src.models.self_organising_maps import SOMCalculator
+from src.models.manipulations.self_organising_maps import SOMCalculator
 from src.metrics.metrics import Metrics
-from src.models.approximations import ApproximateData
+from src.models.manipulations.approximations import ApproximateData
 
 import logging
 
@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 """
 
 
-class SingleYearEnv():
+class SOMEnv():
     """
     Environment to calculate error metrics from each step made.
 
@@ -109,9 +109,9 @@ class SingleYearEnv():
                                      representative_data[1], original_data[2], representative_data[2], "dc")
 
         error_metrics = metrics_calculator.get_mean_error_metrics()
-        nrmse = -error_metrics.iloc[1].value
-        rae = -error_metrics.iloc[2].value
-        correlation = -error_metrics.iloc[0].value
+        nrmse = error_metrics.iloc[1].value
+        rae = error_metrics.iloc[2].value
+        correlation = error_metrics.iloc[0].value
         # reward = -error_metrics.value.sum()
         # logger.info("error_metrics: {}".format(error_metrics))
         # logger.info("error_metrics: {}".format(error_metrics.iloc[0]))
