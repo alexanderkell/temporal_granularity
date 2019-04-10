@@ -53,7 +53,7 @@ class KMeansEnv(Env):
 
             approximation_calc = ApproximateData(df_data, 4)
             original_days = approximation_calc.get_load_duration_curve(
-                year="2014")
+                year="2016")
 
             original_data.append(original_days)
 

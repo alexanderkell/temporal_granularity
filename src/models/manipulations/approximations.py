@@ -79,7 +79,7 @@ class ApproximateData:
 
         each_day, k_means, y_kmeans, y_kmeans_df = self.perform_k_means_clustering()
 
-        cluster_centres = kmeans.cluster_centers_
+        cluster_centres = k_means.cluster_centers_
         cluster_centres_df = pd.DataFrame(cluster_centres)
         cluster_centres_df['cluster'] = cluster_centres_df.index
         cluster_centres_df.reset_index()
@@ -147,7 +147,7 @@ class ApproximateData:
     def get_ramp_duration_curve(self, data=None, clusters=None, year=None):
         if data is None:
             data = self.data.copy()
-            if not year is None:
+            if year is not None:
                 data = data.reset_index()
                 data = data[(data.datetime >= year) & (
                     data.datetime < str(int(year) + 1))]

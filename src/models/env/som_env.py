@@ -100,7 +100,7 @@ class SOMEnv(Env):
             representative_data.append(representative_days)
 
             original_days = approximation_calc.get_load_duration_curve(
-                year="2014")
+                year="2013")
 
             original_data.append(original_days)
 

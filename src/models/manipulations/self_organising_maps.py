@@ -44,8 +44,8 @@ class SOMCalculator:
         som = MiniSom(self.n_clusters_dim_1, self.n_clusters_dim_2, 24, sigma=0.3,
                       learning_rate=0.5, neighborhood_function='gaussian', random_seed=10)
 
-        # som.pca_weights_init(self.data)
-        som.random_weights_init(self.data)
+        som.pca_weights_init(self.data)
+        # som.random_weights_init(self.data)
         som.train_batch(self.data, self.batch_size,
                         verbose=False)  # random training
 

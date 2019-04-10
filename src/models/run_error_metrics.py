@@ -5,7 +5,7 @@ sys.path.insert(0, '{}/temporal_granularity/'.format(project_dir))
 
 from sklearn.preprocessing import MinMaxScaler
 from src.metrics.metrics import Metrics
-from src.models.approximations import ApproximateData
+from src.models.manipulations.approximations import ApproximateData
 import logging
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -45,7 +45,8 @@ if __name__ == "__main__":
         logger.info("Running iteration {}".format(i))
         for method in ['centroids', 'medoids']:
             logger.info("Approximating using {} method".format(method))
-            for num_days in [4, 8, 12, 24, 48]:
+            for num_days in [4]:
+                # for num_days in [4, 8, 12, 24, 48]:
                 logger.info("Calculating using {} days".format(num_days))
                 original_ldcs = []
                 approximated_ldcs = []

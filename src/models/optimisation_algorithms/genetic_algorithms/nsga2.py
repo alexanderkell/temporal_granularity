@@ -90,8 +90,8 @@ BOUND_LOW, BOUND_UP = 0.0, 100
 # BOUND_LOW, BOUND_UP = [0.0] + [-5.0]*9, [1.0] + [5.0]*9
 
 # Functions zdt1, zdt2, zdt3 have 30 dimensions, zdt4 and zdt6 have 10
-# NDIM = 3 * 11 * 11 + 2
-NDIM = 3 * 51 + 1
+NDIM = 3 * 12 * 12 + 2
+# NDIM = 3 * 51 + 1
 
 
 def uniform(low, up, size=None):
@@ -104,7 +104,7 @@ def uniform(low, up, size=None):
 def evalMinSOM(individual):
     individual = [int(i) for i in individual]
     env = SOMEnv(pv_data_np, onshore_data_np, load_data_np,
-                 pv_data, onshore_data, load_data, round(individual[0] / 10) + 1, round(individual[1] / 10) + 1, 20000)
+                 pv_data, onshore_data, load_data, round(individual[0] / 10) + 2, round(individual[1] / 10) + 2, 20000)
     result = env.step(individual[2:])
     result = result[0], result[1], result[2]
 
@@ -131,8 +131,8 @@ toolbox.register("individual", tools.initRepeat, creator.Individual,
 
 toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 
-toolbox.register("evaluate", evalMinKMeans)
-# toolbox.register("evaluate", evalMinSOM)
+# toolbox.register("evaluate", evalMinKMeans)
+toolbox.register("evaluate", evalMinSOM)
 toolbox.register("mate", tools.cxSimulatedBinaryBounded,
                  low=BOUND_LOW, up=BOUND_UP, eta=20.0)
 toolbox.register("mutate", tools.mutPolynomialBounded,
@@ -205,13 +205,14 @@ def main(seed=None):
 
         best_ind = tools.selBest(pop, 1)[0]
 
-        print("Best individual is %s, %s" %
-              (np.rint(best_ind), best_ind.fitness.values))
+        # print("Best individual is %s, %s" %
+        #   (np.rint(best_ind), best_ind.fitness.values))
 
         front = numpy.array(
             [ind.fitness.values + tuple(ind) for ind in pop])
 
-        np.savetxt('{}/temporal_granularity/src/models/optimisation_algorithms/genetic_algorithms/pareto_front/k_means/data/pareto_front_{}.csv'.format(
+        # np.savetxt('{}/temporal_granularity/src/models/optimisation_algorithms/genetic_algorithms/pareto_front/k_means/data/pareto_front_{}.csv'.format(project_dir, gen), front, delimiter=",")
+        np.savetxt('{}/temporal_granularity/src/models/optimisation_algorithms/genetic_algorithms/pareto_front/SOM/data/pareto_front_{}.csv'.format(
             project_dir, gen), front, delimiter=",")
         fig = plt.figure(1)
 
@@ -224,8 +225,8 @@ def main(seed=None):
         fig.add_subplot(rows, columns, 2)
         plt.scatter(front[:, 1], front[:, 2], c="b")
 
-        plt.savefig(
-            '{}/temporal_granularity/src/models/optimisation_algorithms/genetic_algorithms/pareto_front/k_means/images/pareto_front_{}.png'.format(project_dir, gen))
+        # plt.savefig('{}/temporal_granularity/src/models/optimisation_algorithms/genetic_algorithms/pareto_front/k_means/images/pareto_front_{}.png'.format(project_dir, gen))
+        plt.savefig('{}/temporal_granularity/src/models/optimisation_algorithms/genetic_algorithms/pareto_front/SOM/images/pareto_front_{}.png'.format(project_dir, gen))
         plt.close()
 
         fig = plt.figure(1)
@@ -233,8 +234,8 @@ def main(seed=None):
         ax.scatter(front[:, 0], front[:, 1], front[:, 2], c='red')
 
         ax.axis("tight")
-        fig.savefig(
-            '{}/temporal_granularity/src/models/optimisation_algorithms/genetic_algorithms/pareto_front/k_means/images/pareto_front_3D_{}.png'.format(project_dir, gen))
+        fig.savefig('{}/temporal_granularity/src/models/optimisation_algorithms/genetic_algorithms/pareto_front/SOM/images/pareto_front_3D_{}.png'.format(project_dir, gen))
+        # fig.savefig('{}/temporal_granularity/src/models/optimisation_algorithms/genetic_algorithms/pareto_front/k_means/images/pareto_front_3D_{}.png'.format(project_dir, gen))
         plt.close()
 
     # print("Final population hypervolume is %f" %
