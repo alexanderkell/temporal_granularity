@@ -41,12 +41,12 @@ if __name__ == "__main__":
 
     results = []
 
-    for i in range(10):
+    for i in range(100):
         logger.info("Running iteration {}".format(i))
         for method in ['centroids', 'medoids']:
             logger.info("Approximating using {} method".format(method))
-            for num_days in [4]:
-                # for num_days in [4, 8, 12, 24, 48]:
+            # for num_days in [4]:
+            for num_days in [4, 8, 12, 24, 48, 61]:
                 logger.info("Calculating using {} days".format(num_days))
                 original_ldcs = []
                 approximated_ldcs = []
@@ -96,7 +96,8 @@ if __name__ == "__main__":
 
     results_dataframe = pd.concat(results)
     results_dataframe = results_dataframe.reset_index()
-
+    results_dataframe.to_csv(
+        '{}/temporal_granularity/data/processed/results/k_means/run_error_metrics.csv'.format(project_dir))
     logger.info("results_dataframe: {}".format(results_dataframe))
     logger.info("columns name: {}".format(results_dataframe.columns))
 

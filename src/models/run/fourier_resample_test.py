@@ -13,7 +13,7 @@ from src.models.manipulations.approximations import ApproximateData
 from src.models.manipulations.duration_curves import get_ldc, get_rdc
 from src.models.optimisation_algorithms.fourier_resample.fourier_resample import fourier_resample
 from src.metrics.metrics import Metrics
-
+pd.set_option('display.max_rows', 400)
 logger = logging.getLogger(__name__)
 
 
@@ -24,9 +24,6 @@ if __name__ == "__main__":
     project_dir = Path("__file__").resolve().parents[1]
     project_dir
 
-    number_of_days = 12
-    resamples = np.ceil(365 / number_of_days)
-
     pv_data = pd.read_csv(
         '{}/temporal_granularity/data/processed/resources/pv_processed.csv'.format(project_dir))
     onshore_data = pd.read_csv(
@@ -35,30 +32,75 @@ if __name__ == "__main__":
         '{}/temporal_granularity/data/processed/demand/load_processed_normalised.csv'.format(project_dir))
 
     data = [pv_data, onshore_data, load_data]
-    original = []
-    approximated = []
-    for dat in data:
 
-        data_filtered = dat[(dat.datetime > "2014") & (dat.datetime < "2015")]
-        data_filtered.fillna(method='ffill', inplace=True)
-        data_resampled = fourier_resample(
-            data_filtered.capacity_factor, "capacity_factor", number_of_days, resamples)
+    total_metrics = []
+    for number_day in [4, 8, 12, 24, 48, 61]:
+        resamples = np.ceil(365 / number_day)
+        original = []
+        approximated = []
+        original_rdc = []
+        approximated_rdc = []
+        for dat in data:
 
-        data_sampled_ldc = get_ldc(
-            data_resampled, 'capacity_factor', index_name="index_for_year")
-        # data_sampled_ldc['type'] = "sampled"
-        approximated.append(data_sampled_ldc)
+            data_filtered = dat[(dat.datetime > "2015") &
+                                (dat.datetime < "2016")]
+            dat.fillna(method='ffill', inplace=True)
+            data_filtered.fillna(method='ffill', inplace=True)
+            data_resampled = fourier_resample(
+                data_filtered.capacity_factor, "capacity_factor", number_day, resamples)
 
-        data_ldc = get_ldc(data_filtered, "capacity_factor",
-                           index_name="index_for_year")
-        # data_ldc['type'] = "actual"
-        original.append(data_ldc)
-    metrics_calculator = Metrics(original[0], approximated[0], original[1],
-                                 approximated[1], original[2], approximated[2], "dc")
+            # data_resampled = signal.resample(
+            #     data_filtered.capacity_factor, 24 * number_day)
 
-    metrics = metrics_calculator.get_mean_error_metrics()
-    logger.info("metrics: {}".format(metrics))
+            # data_resampled = np.repeat(
+            #     data_resampled.reshape(12, -1), resamples).flatten()[:8760]
 
+            # data_resampled = pd.DataFrame({"capacity_factor": data_resampled})
+
+            # data_sampled_ldc = get_ldc(
+            # data_resampled, 'capacity_factor', index_name="index_for_year")
+            # data_sampled_ldc['type'] = "sampled"
+            data_sampled_ldc = get_ldc(
+                data_resampled, 'capacity_factor', index_name="index_for_year")
+
+            approximated.append(data_sampled_ldc)
+
+            data_ldc = get_ldc(data_filtered, "capacity_factor",
+                               index_name="index_for_year")
+            # data_ldc['type'] = "actual"
+            original.append(data_ldc)
+
+            data_sampled_rdc = get_rdc(
+                data_resampled, 'capacity_factor', index_name="index_for_year")
+
+            approximated_rdc.append(data_sampled_rdc)
+            data_ldc = get_rdc(data_filtered, "capacity_factor",
+                               index_name="index_for_year")
+            original_rdc.append(data_ldc)
+
+        metrics_calculator = Metrics(original[0], approximated[0], original[1],
+                                     approximated[1], original[2], approximated[2], "dc")
+
+        metrics = metrics_calculator.get_mean_error_metrics()
+
+        metrics_calculator_ldc = Metrics(original_rdc[0], approximated_rdc[0], original_rdc[1],
+                                         approximated_rdc[1], original_rdc[2], approximated_rdc[2], "rdc")
+
+        metrics_ldc = metrics_calculator_ldc.get_mean_error_metrics()
+
+        metrics['day'] = number_day
+        metrics_ldc['day'] = number_day
+        total_metrics.append(metrics)
+        total_metrics.append(metrics_ldc)
+
+    total_metrics_df = pd.concat(total_metrics).reset_index()
+
+    total_metrics_df.to_csv(
+        '{}/temporal_granularity/data/processed/results/fourier/fourier_results.csv'.format(project_dir))
+    logger.debug("total_metrics_df: {}".format(total_metrics_df))
+    sns.lineplot(data=total_metrics_df, x="day", y="value", hue="metric")
+    plt.savefig(
+        "/Users/b1017579/Documents/PhD/Projects/14-temporal-granularity/temporal_granularity/src/models/run/100_runs_fourier_repeat.png")
     # joined_data = pd.concat([data_sampled_ldc, data_ldc], sort=True)
 
     # sns.lineplot(data=joined_data, hue='type',
