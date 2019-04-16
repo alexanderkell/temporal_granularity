@@ -130,7 +130,6 @@ if __name__ == "__main__":
 
     # x = [6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6]
     # result = minimize(calculate_error_metrics, x0=x, constraints=cons)
-    x = (slice(6, 20, 1),) * 3
+    x = (slice(2, 4, 1),) * 3
     result = brute(calculate_error_metrics, ranges=x,
                    disp=True, finish=None, full_output=True)
-    print(result)

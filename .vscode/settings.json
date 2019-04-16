@@ -18,7 +18,7 @@
     "editor.formatOnPaste": true,
     "editor.formatOnType": true,
     "python.formatting.autopep8Args": [
-        "--max-line-length=200"
+        "--max-line-length=500"
     ],
     "python.formatting.autopep8Args": [
         "--ignore",
@@ -26,6 +26,7 @@
     ],
     "python.linting.pep8Args": [
         "--max-line-length=200",
+        "--ignore=E501"
     ],
     "python.linting.flake8Args": [
         "--ignore=E501"

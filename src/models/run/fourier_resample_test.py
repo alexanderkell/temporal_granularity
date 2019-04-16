@@ -16,7 +16,6 @@ from src.metrics.metrics import Metrics
 pd.set_option('display.max_rows', 400)
 logger = logging.getLogger(__name__)
 
-
 if __name__ == "__main__":
 
     logging.basicConfig(level=logging.DEBUG)

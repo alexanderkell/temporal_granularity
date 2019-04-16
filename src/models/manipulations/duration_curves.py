@@ -38,10 +38,10 @@ def get_rdc(data, column, index_name="level_0"):
     :return: [description]
     :rtype: [type]
     """
+    data1 = data.copy()
+    data1['diff'] = data[column].diff()
 
-    data['diff'] = data[column].diff()
-
-    data_rdc = data.sort_values(
+    data_rdc = data1.sort_values(
         'diff', ascending=False).reset_index().reset_index()
 
     data_rdc.rename(index=str, columns={'level_0': index_name}, inplace=True)
