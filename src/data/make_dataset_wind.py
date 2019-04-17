@@ -6,6 +6,7 @@ import os
 
 # os.path.join(os.path.dirname(__file__))
 
+
 def main(input_filepath, output_filepath, dataset_string):
     """ Runs data processing scripts to turn raw data from (../raw) into
         cleaned data ready to be analyzed (saved in ../processed).
@@ -14,16 +15,25 @@ def main(input_filepath, output_filepath, dataset_string):
     logger.info('making final data set from raw data')
 
     wind_dat = pd.read_csv(input_filepath.format(project_dir), skiprows=2)
-    
-    wind_off_onshore = wind_dat.drop('national', axis=1)
-    wind_off_onshore = wind_off_onshore[['time',dataset_string]]
 
-    wind_off_onshore = wind_off_onshore.rename(index=str, columns={dataset_string:'capacity_factor'})
+    wind_off_onshore = wind_dat.drop('national', axis=1)
+    wind_off_onshore = wind_off_onshore[['time', dataset_string]]
+
+    wind_off_onshore = wind_off_onshore.rename(index=str, columns={dataset_string: 'capacity_factor'})
     print(wind_off_onshore.columns)
-    wind_off_onshore['datetime']=wind_off_onshore.time
+    wind_off_onshore['datetime'] = wind_off_onshore.time
     print(wind_off_onshore.head())
-    wind_off_onshore.datetime=pd.to_datetime(wind_off_onshore.datetime)
-    wind_off_onshore[['datetime','capacity_factor']].to_csv(output_filepath)
+    wind_off_onshore.datetime = pd.to_datetime(wind_off_onshore.datetime)
+
+    # idx = pd.date_range('01-01-1980 00:00:00', '2016-12-31 23:00:00')
+    # wind_off_onshore.index = pd.DatetimeIndex(wind_off_onshore.datetime)
+#
+    # wind_off_onshore = wind_off_onshore.reindex(idx, fill_value=0)
+
+    wind_off_onshore = wind_off_onshore.set_index('datetime')
+    wind_off_onshore = wind_off_onshore.resample('1h').ffill().reset_index()
+
+    wind_off_onshore[['datetime', 'capacity_factor']].to_csv(output_filepath)
 
 
 if __name__ == '__main__':
@@ -32,10 +42,9 @@ if __name__ == '__main__':
 
     # not used in this stub but often useful for finding various files
     project_dir = Path("__file__").resolve().parents[1]
-    
+
     dataset_string = 'onshore'
-    # main('{}/temporal_granularity/data/raw/resources/ninja_wind_country_GB_current-merra-2_corrected (2).csv'.format(project_dir), '{}/temporal_granularity/data/processed/resources/{}_processed.csv'.format(project_dir, dataset_string), dataset_string)
-    main('{}/temporal_granularity/data/raw/resources/belgium/ninja_wind_country_BE_current-merra-2_corrected.csv'.format(project_dir), '{}/temporal_granularity/data/processed/resources/{}_processed_BE.csv'.format(project_dir, dataset_string), dataset_string)
-    
+    main('{}/temporal_granularity/data/raw/resources/ninja_wind_country_GB_current-merra-2_corrected (2).csv'.format(project_dir), '{}/temporal_granularity/data/processed/resources/{}_processed.csv'.format(project_dir, dataset_string), dataset_string)
+#
     dataset_string = 'offshore'
-    main('{}/temporal_granularity/data/raw/resources/belgium/ninja_wind_country_BE_current-merra-2_corrected.csv'.format(project_dir), '{}/temporal_granularity/data/processed/resources/{}_processed_BE.csv'.format(project_dir, dataset_string), dataset_string)
+    main('{}/temporal_granularity/data/raw/resources/ninja_wind_country_GB_current-merra-2_corrected (2).csv'.format(project_dir), '{}/temporal_granularity/data/processed/resources/{}_processed_BE.csv'.format(project_dir, dataset_string), dataset_string)

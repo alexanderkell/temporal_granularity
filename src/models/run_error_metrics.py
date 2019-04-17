@@ -1,11 +1,10 @@
 from pathlib import Path
 import sys
 project_dir = Path("__file__").resolve().parents[1]
-sys.path.insert(0, '{}/temporal_granularity/'.format(project_dir))
 
 from sklearn.preprocessing import MinMaxScaler
-from src.metrics.metrics import Metrics
-from src.models.manipulations.approximations import ApproximateData
+from temporal_granularity.src.metrics.metrics import Metrics
+from temporal_granularity.src.models.manipulations.approximations import ApproximateData
 import logging
 import pandas as pd
 import matplotlib.pyplot as plt
