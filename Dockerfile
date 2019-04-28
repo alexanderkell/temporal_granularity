@@ -1,8 +1,8 @@
 FROM python:3.6
 
 
-COPY requirements.txt /
-RUN pip install -r requirements.txt
+# COPY requirements.txt /
+# RUN pip install -r requirements.txt
 
 ADD . /app
 COPY . /app
@@ -13,7 +13,7 @@ WORKDIR /app
 
 ENV PYTHONPATH "${PYTHONPATH}:/src"
 
-ENTRYPOINT ["python", "models/optimisation_algorithms/genetic_algorithms/nsga2.py"]
+ENTRYPOINT ["python", "src/models/optimisation_algorithms/genetic_algorithms/nsga2.py"]
 
 # CMD ["python", "run/timing/batch_run_timer.py"]
 
