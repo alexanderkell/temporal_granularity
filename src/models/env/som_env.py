@@ -1,7 +1,9 @@
 import sys
 from pathlib import Path
 project_dir = Path("__file__").resolve().parents[1]
-sys.path.insert(0, '{}/temporal_granularity/'.format(project_dir))
+sys.path.insert(0, '{}'.format(project_dir))
+
+project_dir = ""
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -113,11 +115,11 @@ class SOMEnv(Env):
                                     #  representative_data[1], original_data[2], representative_data[2], "dc")
 
         pv_original = pd.read_csv(
-            '{}/temporal_granularity/data/processed/resources/pv_processed.csv'.format(project_dir))
+            '{}data/processed/resources/pv_processed.csv'.format(project_dir))
         wind_original = pd.read_csv(
-            '{}/temporal_granularity/data/processed/resources/onshore_processed.csv'.format(project_dir))
+            '{}data/processed/resources/onshore_processed.csv'.format(project_dir))
         load_original = pd.read_csv(
-            '{}/temporal_granularity/data/processed/demand/load_NG/load_processed_normalised.csv'.format(project_dir))
+            '{}data/processed/demand/load_NG/load_processed_normalised.csv'.format(project_dir))
 
         pv_original_ldcs, wind_original_ldcs, load_original_ldcs = get_each_ldc(pv_original, wind_original, load_original)
 
