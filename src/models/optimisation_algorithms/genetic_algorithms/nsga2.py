@@ -217,7 +217,7 @@ def main(seed=None):
             [ind.fitness.values + tuple(ind) for ind in pop])
 
         # np.savetxt('{}/src/models/optimisation_algorithms/genetic_algorithms/pareto_front/k_meansdata/pareto_front_{}.csv'.format(project_dir, gen), front, delimiter=",")
-        np.savetxt('{}/src/models/optimisation_algorithms/genetic_algorithms/pareto_front/long_termdata/pareto_front_{}.csv'.format(
+        np.savetxt('{}src/models/optimisation_algorithms/genetic_algorithms/pareto_front/long_term/data/pareto_front_{}.csv'.format(
             project_dir, gen), front, delimiter=",")
         fig = plt.figure(1)
 
@@ -231,7 +231,7 @@ def main(seed=None):
         plt.scatter(front[:, 1], front[:, 2], c="b")
 
         # plt.savefig('{}/src/models/optimisation_algorithms/genetic_algorithms/pareto_front/k_means/images/pareto_front_{}.png'.format(project_dir, gen))
-        plt.savefig('{}/src/models/optimisation_algorithms/genetic_algorithms/pareto_front/long_term/images/pareto_front_{}.png'.format(project_dir, gen))
+        plt.savefig('{}src/models/optimisation_algorithms/genetic_algorithms/pareto_front/long_term/images/pareto_front_{}.png'.format(project_dir, gen))
         plt.close()
 
         fig = plt.figure(1)
@@ -239,7 +239,7 @@ def main(seed=None):
         ax.scatter(front[:, 0], front[:, 1], front[:, 2], c='red')
 
         ax.axis("tight")
-        fig.savefig('{}/src/models/optimisation_algorithms/genetic_algorithms/pareto_front/long_term/images/pareto_front_3D_{}.png'.format(project_dir, gen))
+        fig.savefig('{}src/models/optimisation_algorithms/genetic_algorithms/pareto_front/long_term/images/pareto_front_3D_{}.png'.format(project_dir, gen))
         # fig.savefig('{}/src/models/optimisation_algorithms/genetic_algorithms/pareto_front/k_means/images/pareto_front_3D_{}.png'.format(project_dir, gen))
         plt.close()
 
