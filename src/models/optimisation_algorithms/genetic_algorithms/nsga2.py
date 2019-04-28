@@ -25,7 +25,9 @@ import numpy as np
 from mpl_toolkits.mplot3d import Axes3D
 
 project_dir = Path("__file__").resolve().parents[1]
-sys.path.insert(0, '{}/temporal_granularity/'.format(project_dir))
+sys.path.insert(0, '{}/'.format(project_dir))
+
+project_dir=""
 
 # import json
 
@@ -50,33 +52,33 @@ year_start = "2006"
 year_end = "2011"
 
 onshore_data = pd.read_csv(
-    '{}/temporal_granularity/data/processed/data_grouped_by_day/pv_each_day.csv'.format(project_dir))
+    '{}data/processed/data_grouped_by_day/pv_each_day.csv'.format(project_dir))
 
 onshore_data_np = onshore_data[(onshore_data.date > "2006") & (
     onshore_data.date < "2011")].reset_index().drop(
     columns=["date", 'index']).values
 
 load_data = pd.read_csv(
-    "{}/temporal_granularity/data/processed/data_grouped_by_day/load_NG_normalised_each_day.csv".format(project_dir))
+    "{}data/processed/data_grouped_by_day/load_NG_normalised_each_day.csv".format(project_dir))
 
 load_data_np = load_data[(load_data.date > "2006") & (
     load_data.date < "2011")].reset_index().drop(columns=["date", 'index']).values
 
 
 # offshore_data = pd.read_csv(
-# '{}/temporal_granularity/data/processed/resources/offshore_processed.csv'.format(project_dir))
+# '{}data/processed/resources/offshore_processed.csv'.format(project_dir))
 pv_data = pd.read_csv(
-    '{}/temporal_granularity/data/processed/data_grouped_by_day/pv_each_day.csv'.format(project_dir))
+    '{}data/processed/data_grouped_by_day/pv_each_day.csv'.format(project_dir))
 
 pv_data_np = pv_data[(pv_data.date > "2006") & (
     pv_data.date < "2011")].reset_index().drop(columns=["date", 'index']).values
 
 pv_data = pd.read_csv(
-    '{}/temporal_granularity/data/processed/resources/pv_processed.csv'.format(project_dir))
+    '{}data/processed/resources/pv_processed.csv'.format(project_dir))
 onshore_data = pd.read_csv(
-    '{}/temporal_granularity/data/processed/resources/onshore_processed.csv'.format(project_dir))
+    '{}data/processed/resources/onshore_processed.csv'.format(project_dir))
 load_data = pd.read_csv(
-    "{}/temporal_granularity/data/processed/demand/load_processed_normalised.csv".format(project_dir))
+    "{}data/processed/demand/load_processed_normalised.csv".format(project_dir))
 
 
 creator.create("FitnessMin", base.Fitness, weights=(-1.0, -1.0, -1.0))
@@ -214,8 +216,8 @@ def main(seed=None):
         front = numpy.array(
             [ind.fitness.values + tuple(ind) for ind in pop])
 
-        # np.savetxt('{}/temporal_granularity/src/models/optimisation_algorithms/genetic_algorithms/pareto_front/k_means/data/pareto_front_{}.csv'.format(project_dir, gen), front, delimiter=",")
-        np.savetxt('{}/temporal_granularity/src/models/optimisation_algorithms/genetic_algorithms/pareto_front/long_term/data/pareto_front_{}.csv'.format(
+        # np.savetxt('{}/src/models/optimisation_algorithms/genetic_algorithms/pareto_front/k_meansdata/pareto_front_{}.csv'.format(project_dir, gen), front, delimiter=",")
+        np.savetxt('{}/src/models/optimisation_algorithms/genetic_algorithms/pareto_front/long_termdata/pareto_front_{}.csv'.format(
             project_dir, gen), front, delimiter=",")
         fig = plt.figure(1)
 
@@ -228,8 +230,8 @@ def main(seed=None):
         fig.add_subplot(rows, columns, 2)
         plt.scatter(front[:, 1], front[:, 2], c="b")
 
-        # plt.savefig('{}/temporal_granularity/src/models/optimisation_algorithms/genetic_algorithms/pareto_front/k_means/images/pareto_front_{}.png'.format(project_dir, gen))
-        plt.savefig('{}/temporal_granularity/src/models/optimisation_algorithms/genetic_algorithms/pareto_front/long_term/images/pareto_front_{}.png'.format(project_dir, gen))
+        # plt.savefig('{}/src/models/optimisation_algorithms/genetic_algorithms/pareto_front/k_means/images/pareto_front_{}.png'.format(project_dir, gen))
+        plt.savefig('{}/src/models/optimisation_algorithms/genetic_algorithms/pareto_front/long_term/images/pareto_front_{}.png'.format(project_dir, gen))
         plt.close()
 
         fig = plt.figure(1)
@@ -237,8 +239,8 @@ def main(seed=None):
         ax.scatter(front[:, 0], front[:, 1], front[:, 2], c='red')
 
         ax.axis("tight")
-        fig.savefig('{}/temporal_granularity/src/models/optimisation_algorithms/genetic_algorithms/pareto_front/long_term/images/pareto_front_3D_{}.png'.format(project_dir, gen))
-        # fig.savefig('{}/temporal_granularity/src/models/optimisation_algorithms/genetic_algorithms/pareto_front/k_means/images/pareto_front_3D_{}.png'.format(project_dir, gen))
+        fig.savefig('{}/src/models/optimisation_algorithms/genetic_algorithms/pareto_front/long_term/images/pareto_front_3D_{}.png'.format(project_dir, gen))
+        # fig.savefig('{}/src/models/optimisation_algorithms/genetic_algorithms/pareto_front/k_means/images/pareto_front_3D_{}.png'.format(project_dir, gen))
         plt.close()
 
     # print("Final population hypervolume is %f" %
@@ -257,4 +259,4 @@ if __name__ == "__main__":
     front = numpy.array([ind.fitness.values for ind in pop])
     plt.scatter(front[:, 0], front[:, 1], c="b")
     plt.axis("tight")
-    plt.savefig('/Users/b1017579/Documents/PhD/Projects/14-temporal-granularity/temporal_granularity/src/models/optimisation_algorithms/genetic_algorithms/pareto_front.png')
+    plt.savefig('/Users/b1017579/Documents/PhD/Projects/14-temporal-granularity/src/models/optimisation_algorithms/genetic_algorithms/pareto_front.png')
