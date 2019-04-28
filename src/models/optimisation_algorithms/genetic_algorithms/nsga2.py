@@ -210,8 +210,8 @@ def main(seed=None):
 
         best_ind = tools.selBest(pop, 1)[0]
 
-        # print("Best individual is %s, %s" %
-        #   (np.rint(best_ind), best_ind.fitness.values))
+        print("Best individual is %s, %s" %
+          (np.rint(best_ind), best_ind.fitness.values))
 
         front = numpy.array(
             [ind.fitness.values + tuple(ind) for ind in pop])
