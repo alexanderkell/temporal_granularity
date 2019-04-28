@@ -46,18 +46,21 @@ import logging
 logging.basicConfig(level=logging.INFO)
 
 
+year_start = "2006"
+year_end = "2011"
+
 onshore_data = pd.read_csv(
     '{}/temporal_granularity/data/processed/data_grouped_by_day/pv_each_day.csv'.format(project_dir))
 
-onshore_data_np = onshore_data[(onshore_data.date > "2014") & (
-    onshore_data.date < "2015")].reset_index().drop(
+onshore_data_np = onshore_data[(onshore_data.date > "2006") & (
+    onshore_data.date < "2011")].reset_index().drop(
     columns=["date", 'index']).values
 
 load_data = pd.read_csv(
-    "{}/temporal_granularity/data/processed/data_grouped_by_day/load_normalised_each_day.csv".format(project_dir))
+    "{}/temporal_granularity/data/processed/data_grouped_by_day/load_NG_normalised_each_day.csv".format(project_dir))
 
-load_data_np = load_data[(load_data.date > "2014") & (
-    load_data.date < "2015")].reset_index().drop(columns=["date", 'index']).values
+load_data_np = load_data[(load_data.date > "2006") & (
+    load_data.date < "2011")].reset_index().drop(columns=["date", 'index']).values
 
 
 # offshore_data = pd.read_csv(
@@ -65,8 +68,8 @@ load_data_np = load_data[(load_data.date > "2014") & (
 pv_data = pd.read_csv(
     '{}/temporal_granularity/data/processed/data_grouped_by_day/pv_each_day.csv'.format(project_dir))
 
-pv_data_np = pv_data[(pv_data.date > "2014") & (
-    pv_data.date < "2015")].reset_index().drop(columns=["date", 'index']).values
+pv_data_np = pv_data[(pv_data.date > "2006") & (
+    pv_data.date < "2011")].reset_index().drop(columns=["date", 'index']).values
 
 pv_data = pd.read_csv(
     '{}/temporal_granularity/data/processed/resources/pv_processed.csv'.format(project_dir))
@@ -104,7 +107,7 @@ def uniform(low, up, size=None):
 def evalMinSOM(individual):
     individual = [int(i) for i in individual]
     env = SOMEnv(pv_data_np, onshore_data_np, load_data_np,
-                 pv_data, onshore_data, load_data, round(individual[0] / 10) + 2, round(individual[1] / 10) + 2, 20000)
+                 pv_data, onshore_data, load_data, round(individual[0] / 10) + 2, round(individual[1] / 10) + 2, 20000, int(year_end))
     result = env.step(individual[2:])
     result = result[0], result[1], result[2]
 
@@ -212,7 +215,7 @@ def main(seed=None):
             [ind.fitness.values + tuple(ind) for ind in pop])
 
         # np.savetxt('{}/temporal_granularity/src/models/optimisation_algorithms/genetic_algorithms/pareto_front/k_means/data/pareto_front_{}.csv'.format(project_dir, gen), front, delimiter=",")
-        np.savetxt('{}/temporal_granularity/src/models/optimisation_algorithms/genetic_algorithms/pareto_front/SOM/data/pareto_front_{}.csv'.format(
+        np.savetxt('{}/temporal_granularity/src/models/optimisation_algorithms/genetic_algorithms/pareto_front/long_term/data/pareto_front_{}.csv'.format(
             project_dir, gen), front, delimiter=",")
         fig = plt.figure(1)
 
@@ -226,7 +229,7 @@ def main(seed=None):
         plt.scatter(front[:, 1], front[:, 2], c="b")
 
         # plt.savefig('{}/temporal_granularity/src/models/optimisation_algorithms/genetic_algorithms/pareto_front/k_means/images/pareto_front_{}.png'.format(project_dir, gen))
-        plt.savefig('{}/temporal_granularity/src/models/optimisation_algorithms/genetic_algorithms/pareto_front/SOM/images/pareto_front_{}.png'.format(project_dir, gen))
+        plt.savefig('{}/temporal_granularity/src/models/optimisation_algorithms/genetic_algorithms/pareto_front/long_term/images/pareto_front_{}.png'.format(project_dir, gen))
         plt.close()
 
         fig = plt.figure(1)
@@ -234,7 +237,7 @@ def main(seed=None):
         ax.scatter(front[:, 0], front[:, 1], front[:, 2], c='red')
 
         ax.axis("tight")
-        fig.savefig('{}/temporal_granularity/src/models/optimisation_algorithms/genetic_algorithms/pareto_front/SOM/images/pareto_front_3D_{}.png'.format(project_dir, gen))
+        fig.savefig('{}/temporal_granularity/src/models/optimisation_algorithms/genetic_algorithms/pareto_front/long_term/images/pareto_front_3D_{}.png'.format(project_dir, gen))
         # fig.savefig('{}/temporal_granularity/src/models/optimisation_algorithms/genetic_algorithms/pareto_front/k_means/images/pareto_front_3D_{}.png'.format(project_dir, gen))
         plt.close()
 

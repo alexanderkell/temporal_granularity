@@ -40,6 +40,9 @@ if __name__ == '__main__':
 
     main('{}/temporal_granularity/data/processed/demand/load_processed_normalised.csv'.format(project_dir),
          '{}/temporal_granularity/data/processed/data_grouped_by_day/load_normalised_each_day.csv'.format(project_dir))
+    
+    main('{}/temporal_granularity/data/processed/demand/load_NG/load_processed_normalised.csv'.format(project_dir),
+         '{}/temporal_granularity/data/processed/data_grouped_by_day/load_NG_normalised_each_day.csv'.format(project_dir))
 
     main('{}/temporal_granularity/data/processed/resources/onshore_processed.csv'.format(project_dir),
          '{}/temporal_granularity/data/processed/data_grouped_by_day/onshore_each_day.csv'.format(project_dir))

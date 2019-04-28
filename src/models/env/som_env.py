@@ -12,6 +12,9 @@ from src.models.manipulations.self_organising_maps import SOMCalculator
 from src.metrics.metrics import Metrics
 from src.models.manipulations.approximations import ApproximateData
 from src.models.env.env import Env
+from src.models.run.long_term_optimisation.compare_methods import get_each_ldc
+from src.metrics.multi_year_metrics import MultiYearMetrics
+
 
 import logging
 
@@ -36,7 +39,7 @@ class SOMEnv(Env):
 
     """
 
-    def __init__(self, solar, onshore, load, solar_df, onshore_df, load_df, n_clusters_dim_1, n_clusters_dim_2, batch_size):
+    def __init__(self, solar, onshore, load, solar_df, onshore_df, load_df, n_clusters_dim_1, n_clusters_dim_2, batch_size, year_start):
         """
         Initialise the single year env.
 
@@ -67,6 +70,8 @@ class SOMEnv(Env):
                             self.onshore_som_calculator, self.load_som_calculator]
         self.som_objects = [self.solar_som, self.onshore_som, self.load_som]
 
+        self.year_start = year_start
+
     def step(self, actions):
         """Step through environment
 
@@ -90,8 +95,6 @@ class SOMEnv(Env):
 
             representative_days = pd.DataFrame(representative_days)
 
-            logger.debug("representative_days: {}".format(representative_days))
-
             representative_days = self.wide_to_long(representative_days)
             approximation_calc = ApproximateData(df_data, 4)
             representative_days = ApproximateData(df_data, 4).get_load_duration_curve(
@@ -99,18 +102,38 @@ class SOMEnv(Env):
 
             representative_data.append(representative_days)
 
-            original_days = approximation_calc.get_load_duration_curve(
-                year="2013")
+            # original_days = approximation_calc.get_load_duration_curve(
+                # year="2013")
 
-            original_data.append(original_days)
 
-        metrics_calculator = Metrics(original_data[0], representative_data[0], original_data[1],
-                                     representative_data[1], original_data[2], representative_data[2], "dc")
 
-        error_metrics = metrics_calculator.get_mean_error_metrics()
-        nrmse = error_metrics.iloc[1].value
-        rae = error_metrics.iloc[2].value
-        correlation = error_metrics.iloc[0].value
+            # original_data.append(original_days)
+
+        # metrics_calculator = Metrics(original_data[0], representative_data[0], original_data[1],
+                                    #  representative_data[1], original_data[2], representative_data[2], "dc")
+
+        pv_original = pd.read_csv(
+            '{}/temporal_granularity/data/processed/resources/pv_processed.csv'.format(project_dir))
+        wind_original = pd.read_csv(
+            '{}/temporal_granularity/data/processed/resources/onshore_processed.csv'.format(project_dir))
+        load_original = pd.read_csv(
+            '{}/temporal_granularity/data/processed/demand/load_NG/load_processed_normalised.csv'.format(project_dir))
+
+        pv_original_ldcs, wind_original_ldcs, load_original_ldcs = get_each_ldc(pv_original, wind_original, load_original)
+
+        multi_year_metrics_calculator = MultiYearMetrics(pv_original_ldcs, representative_data[0], wind_original_ldcs, representative_data[1], load_original_ldcs, representative_data[2], self.year_start)
+        multi_year_metrics = multi_year_metrics_calculator.get_multi_year_average_metrics("dc")
+        multi_year_metrics = multi_year_metrics.reset_index()
+        # logger.debug("multi_year_metrics: \n{}".format(multi_year_metrics))
+
+        nrmse = multi_year_metrics[multi_year_metrics['metric'] == 'nrmse dc'].iloc[0].value
+        rae = multi_year_metrics[multi_year_metrics['metric'] == 'rae dc'].iloc[0].value
+        correlation = multi_year_metrics[multi_year_metrics['metric'] == 'correlation'].iloc[0].value
+
+        # error_metrics = metrics_calculator.get_mean_error_metrics()
+        # nrmse = error_metrics.iloc[1].value
+        # rae = error_metrics.iloc[2].value
+        # correlation = error_metrics.iloc[0].value
         # reward = -error_metrics.value.sum()
         # logger.info("error_metrics: {}".format(error_metrics))
         # logger.info("error_metrics: {}".format(error_metrics.iloc[0]))

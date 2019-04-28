@@ -4,6 +4,14 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+def get_group_ldc(data, column_to_sort, index_name):
+    data.datetime = pd.to_datetime(data.datetime)
+    data['year'] = data.datetime.dt.year
+    data_ldc = data.groupby('year').apply(get_ldc, column_to_sort, index_name)
+    data_ldc.reset_index(inplace=True, drop=True)
+    return data_ldc
+
+
 def get_ldc(data, column_to_sort, index_name="level_0"):
     """Get load duration curve.
 

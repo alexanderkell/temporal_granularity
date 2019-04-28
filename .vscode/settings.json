@@ -1,13 +1,16 @@
 {
     // "python.pythonPath": "temporal_venv/bin/python3",
     "python.pythonPath": "/Users/b1017579/Documents/PhD/Projects/14-temporal-granularity/temporal_granularity/temporal_venv/bin/python3",
-    "python.unitTest.unittestEnabled": false,
-    "python.unitTest.nosetestsEnabled": false,
-    "python.unitTest.pyTestEnabled": true,
-    "python.unitTest.pyTestArgs": [
+    "python.testing.unittestEnabled": false,
+    "python.testing.nosetestsEnabled": false,
+    "python.testing.pyTestEnabled": true,
+    "python.testing.pyTestArgs": [
         "-s",
         "-v",
     ],
+    "code-runner.executorMap": {
+        "python": "$pythonPath -u $fullFileName",
+    },
     "python.jediEnabled": false,
     "python.linting.flake8Enabled": true,
     "autoDocstring.docstringFormat": "sphinx",
@@ -21,15 +24,17 @@
     "python.formatting.autopep8Args": [
         "--max-line-length=500"
     ],
-    // "python.formatting.autopep8Args": [
-    // "--ignore",
-    // "E402"
-    // ],
+    "python.formatting.autopep8Args": [
+        "--ignore E402",
+        "--ignore=E501",
+    ],
     "python.linting.pep8Args": [
         "--max-line-length=200",
-        "--ignore=E501"
+        "--ignore=E501",
+        "--ignore=E402"
     ],
     "python.linting.flake8Args": [
+        "--ignore=E402",
         "--ignore=E501"
     ],
     // "python.linting.pylintEnabled": true
