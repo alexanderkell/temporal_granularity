@@ -13,7 +13,7 @@ WORKDIR /app
 
 ENV PYTHONPATH "${PYTHONPATH}:/src"
 
-VOLUME [ "/myvol" , "src/models/optimisation_algorithms/genetic_algorithms/pareto_front"]
+VOLUME [ "/myvol" , "/src/models/optimisation_algorithms/genetic_algorithms/pareto_front/long_term"]
 
 ENTRYPOINT ["python", "-m", "scoop", "src/models/optimisation_algorithms/genetic_algorithms/nsga2.py"]
 CMD [""]
