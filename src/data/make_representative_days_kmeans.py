@@ -8,7 +8,7 @@ import logging
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
-
+import numpy as np
 from src.models.manipulations.approximations import ApproximateData
 
 
@@ -46,6 +46,10 @@ if __name__ == "__main__":
         result = pd.merge(medoids, cluster_weights, on="cluster")
         if data_name in ["solar", 'onshore', 'offshore']:
             result['counts'] = result['counts'] / 11
+
+        to_divide = np.sum(np.unique(result['counts'])) / 365
+
+        result['counts'] = np.round(result['counts'] / to_divide)
         result['data_type'] = name
         data_stored.append(result)
 

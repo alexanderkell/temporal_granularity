@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
-import statsmodels.api as sm
+# import statsmodels.api as sm
 from pandas.plotting import autocorrelation_plot
 from scipy import signal
 from sklearn.cluster import KMeans
@@ -14,7 +14,8 @@ from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
 from sklearn.metrics import pairwise_distances_argmin_min
 from statsmodels.tsa.arima_model import ARIMA
-
+from sklearn.cluster import AgglomerativeClustering
+from sklearn.neighbors.nearest_centroid import NearestCentroid
 logger = logging.getLogger(__name__)
 
 
@@ -31,6 +32,9 @@ class ApproximateData:
         elif approximation_method == "centroids":
             centres, y_kmeans = self.kmeans_centroids()
             data = self.get_ramp_duration_curve(centres, y_kmeans)
+        elif approximation_method == "wards":
+            centres, y_kmeans = self.calculate_wards()
+            data = self.get_ramp_duration_curve(centres, y_kmeans)
         elif approximation_method == "season_average":
             centres = self.average_by_season()
             data = self.get_ramp_duration_curve(centres)
@@ -45,6 +49,9 @@ class ApproximateData:
             data = self.get_load_duration_curve(centres, y_kmeans)
         elif approximation_method == "centroids":
             centres, y_kmeans = self.kmeans_centroids()
+            data = self.get_load_duration_curve(centres, y_kmeans)
+        elif approximation_method == "wards":
+            centres, y_kmeans = self.calculate_wards()
             data = self.get_load_duration_curve(centres, y_kmeans)
         elif approximation_method == "season_average":
             centres = self.average_by_season()
@@ -74,6 +81,23 @@ class ApproximateData:
         average_day_df = average_day_df.reset_index()
 
         return average_day_df
+
+    def calculate_wards(self):
+
+        each_day, wards, y_kmeans, y_kmeans_df = self.perform_wards_clustering()
+
+        each_day_w_kmeans = each_day.copy()
+        each_day_w_kmeans['cluster'] = y_kmeans
+
+        clf = NearestCentroid()
+        clf.fit(each_day, y_kmeans)
+
+        medoids = pd.DataFrame(clf.centroids_)
+
+        medoids = self._get_medoids(medoids, each_day_w_kmeans)
+
+        return medoids, y_kmeans_df
+
 
     def kmeans_centroids(self):
 
@@ -105,6 +129,15 @@ class ApproximateData:
         medoids = self._get_medoids(closest_data_points, each_day_w_kmeans)
 
         return medoids, y_kmeans_df
+
+    def perform_wards_clustering(self):
+        each_day = self._long_to_wide_data()
+        wards = self._get_wards(each_day)
+        y_kmeans = wards.fit_predict(each_day)
+        y_kmeans_df = pd.DataFrame(y_kmeans)
+        y_kmeans_df = y_kmeans_df.rename(
+            columns={y_kmeans_df.columns[0]: 'cluster'})
+        return each_day, wards, y_kmeans, y_kmeans_df
 
     def perform_k_means_clustering(self):
         each_day = self._long_to_wide_data()
@@ -182,17 +215,23 @@ class ApproximateData:
 
     def _scale_data_to_clusters(self, data, clusters):
         clusters = clusters.reset_index()
+
         cluster_weights = clusters.groupby('cluster').count()
 
         scaled_data = data.merge(cluster_weights, on='cluster')
-
         scaled_data['index'] = scaled_data['index'] / \
             (cluster_weights.iloc[:, 0].sum() / 365)
 
         scaled_data['index'] = np.ceil(scaled_data['index']).astype(int)
         # scaled_data['index'] = scaled_data['index'].round(decimals=0)
+
         scaled_data = scaled_data.reindex(
             scaled_data.index.repeat(scaled_data['index']))
+
+
+        if len(scaled_data) < 8760:
+            scaled_data = scaled_data.append(scaled_data)
+            scaled_data = scaled_data.append(scaled_data)
 
         scaled_data = scaled_data[:8760]
 
@@ -235,6 +274,10 @@ class ApproximateData:
         kmeans.fit(each_day)
         return kmeans
 
+    def _get_wards(self, each_day):
+        wards = AgglomerativeClustering(n_clusters=self.n_days, linkage="ward")
+        wards.fit(each_day)
+        return wards
 
 if __name__ == '__main__':
     log_fmt = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'

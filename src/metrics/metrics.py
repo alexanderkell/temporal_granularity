@@ -12,8 +12,8 @@ import logging
 
 import pandas as pd
 
-from src.metrics.multi_metrics import MultiMetrics
-from src.metrics.single_metrics import SingleMetrics
+from temporal_granularity.src.metrics.multi_metrics import MultiMetrics
+from temporal_granularity.src.metrics.single_metrics import SingleMetrics
 
 logger = logging.getLogger(__name__)
 
@@ -89,6 +89,7 @@ class Metrics:
         data_types = ['solar', 'wind', 'load']
         members = list(vars(self).items())
         for original, representative, data_type in zip(members[0::2], members[1::2], data_types):
+            # print(data_type)
             nrmse_result = {}
             solar_metrics = SingleMetrics(
                 original[1], representative[1]).nrmse()

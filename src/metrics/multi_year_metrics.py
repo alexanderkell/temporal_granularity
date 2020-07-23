@@ -1,5 +1,5 @@
 import logging
-from src.metrics.metrics import Metrics
+from temporal_granularity.src.metrics.metrics import Metrics
 import pandas as pd
 import sys
 
